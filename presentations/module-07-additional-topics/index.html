@@ -6,15 +6,29 @@
     <title>Module 7: Additional Topics & Wrap-up</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
     <style>
-        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
-        .reveal pre { width: 100%; }
-        .reveal pre code { max-height: 500px; }
-        .reveal table { font-size: 0.7em; }
-        .reveal ul, .reveal ol { font-size: 0.9em; }
-        .checkmark { color: #5cb85c; }
+        :root {
+            --r-heading-color: #2c3e50;
+            --r-main-color: #333;
+            --r-link-color: #3498db;
+            --r-background-color: #fff;
+        }
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; color: var(--r-heading-color); }
+        .reveal h1 { font-size: 1.8em; }
+        .reveal h2 { font-size: 1.4em; }
+        .reveal h3 { font-size: 1.1em; }
+        .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .reveal pre code { max-height: 380px; padding: 15px; }
+        .reveal ul, .reveal ol { font-size: 0.75em; }
+        .reveal li { margin-bottom: 0.4em; }
+        .reveal table { font-size: 0.65em; }
+        .reveal blockquote { font-size: 0.8em; background: #f9f9f9; border-left: 4px solid #3498db; padding: 0.5em 1em; }
+        .reveal .small-code pre { font-size: 0.42em; }
+        .reveal .small-code pre code { max-height: 340px; }
+        .reveal section p { font-size: 0.75em; }
+        .checkmark { color: #27ae60; }
     </style>
 </head>
 <body>
