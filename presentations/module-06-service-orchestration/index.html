@@ -576,6 +576,26 @@ public class NotificationService {
                 </section>
             </section>
 
+            <!-- Lab 7 -->
+            <section>
+                <section>
+                    <h2>Lab 7</h2>
+                    <h3>Service Integration</h3>
+                </section>
+                <section>
+                    <h3>Lab 7: Service Integration</h3>
+                    <p>You will build event-driven architecture:</p>
+                    <ul>
+                        <li>Create custom application events</li>
+                        <li>Implement event publishers</li>
+                        <li>Build synchronous and async listeners</li>
+                        <li>Use @TransactionalEventListener</li>
+                    </ul>
+                    <p><strong>Time:</strong> 60-75 minutes</p>
+                    <p><strong>Folder:</strong> <code>labs/module-06-service-orchestration/</code></p>
+                </section>
+            </section>
+
             <!-- Section 4: Message Queues (Production) -->
             <section>
                 <section>
@@ -1003,26 +1023,12 @@ INFO [notification-service,abc123,ghi789] - Sending notification
                     <h2>Module 6 Summary</h2>
                     <h3>Key Takeaways</h3>
                     <ol>
-                        <li><strong>Synchronous</strong> (REST/HTTP) for request-response patterns</li>
+                        <li><strong>Synchronous</strong> (REST/HTTP) for request-response</li>
                         <li><strong>Spring Events</strong> for in-process decoupling</li>
                         <li><strong>@Async + @EventListener</strong> for async processing</li>
                         <li><strong>@TransactionalEventListener</strong> for transaction-aware events</li>
                         <li><strong>RabbitMQ/Kafka</strong> for distributed production systems</li>
-                        <li><strong>Circuit breakers</strong> prevent cascade failures</li>
                     </ol>
-                </section>
-
-                <section>
-                    <h2>Lab Exercise</h2>
-                    <h3>Lab 7: Service Orchestration</h3>
-                    <p>You will build:</p>
-                    <ul>
-                        <li>Event-driven Task Service with Spring Events</li>
-                        <li>Notification Service as event listener</li>
-                        <li>Async event processing with @Async</li>
-                        <li>REST communication between services</li>
-                    </ul>
-                    <p><strong>Time:</strong> 60-75 minutes</p>
                 </section>
 
                 <section>
