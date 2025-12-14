@@ -1,5 +1,4 @@
-# Working with Spring Boot - 3-Day Workshop
-
+# Working with Spring Boot 
 A comprehensive hands-on workshop for building microservices using the Spring Boot framework.
 
 ## Course Overview
