@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Module 1: Spring Framework Fundamentals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal .small-code pre code { font-size: 0.65em; }
+        .two-columns { display: flex; gap: 2em; }
+        .two-columns > * { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 1</h1>
+                <h2>Spring Framework Fundamentals</h2>
+                <p>Working with Spring Boot Workshop</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Understand the Spring Framework core concepts</li>
+                    <li>Master Inversion of Control (IoC) and Dependency Injection (DI)</li>
+                    <li>Work with Java Annotations</li>
+                    <li>Configure Spring applications</li>
+                </ul>
+                <p><strong>Duration:</strong> ~3 hours (Day 1 Morning)</p>
+            </section>
+
+            <!-- Section 1: Introduction -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>Introduction to Spring Framework</h3>
+                </section>
+
+                <section>
+                    <h3>What is Spring?</h3>
+                    <ul>
+                        <li><strong>Open-source application framework</strong> for Java</li>
+                        <li>Created by Rod Johnson in 2003</li>
+                        <li>Provides comprehensive infrastructure support</li>
+                        <li>Makes Java development easier and more productive</li>
+                    </ul>
+                    <blockquote>"Spring is not just a framework, it's a platform for your applications"</blockquote>
+                </section>
+
+                <section>
+                    <h3>Why Spring?</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Challenge</th><th>Spring Solution</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Complex J2EE/Jakarta EE</td><td>Simplified programming model</td></tr>
+                            <tr><td>Tight coupling</td><td>Loose coupling via DI</td></tr>
+                            <tr><td>Hard to test</td><td>Easy unit testing</td></tr>
+                            <tr><td>Boilerplate code</td><td>Convention over configuration</td></tr>
+                            <tr><td>XML configuration hell</td><td>Annotation-based configuration</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Spring Ecosystem</h3>
+                    <pre><code class="text">
+┌─────────────────────────────────────────────────────────┐
+│                    Spring Boot                          │
+├─────────────────────────────────────────────────────────┤
+│  Spring   │  Spring  │  Spring  │  Spring  │  Spring   │
+│   Data    │ Security │   MVC    │  Cloud   │   Batch   │
+├─────────────────────────────────────────────────────────┤
+│                  Spring Framework Core                   │
+│         (IoC Container, AOP, Events, Resources)         │
+└─────────────────────────────────────────────────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Spring vs Spring Boot</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Spring Framework</th><th>Spring Boot</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Requires manual configuration</td><td>Auto-configuration</td></tr>
+                            <tr><td>XML or Java config needed</td><td>Minimal configuration</td></tr>
+                            <tr><td>External server deployment</td><td>Embedded server</td></tr>
+                            <tr><td>Dependency management manual</td><td>Starter dependencies</td></tr>
+                            <tr><td>Production setup complex</td><td>Production-ready features</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+            <!-- Section 2: IoC -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>Inversion of Control (IoC)</h3>
+                </section>
+
+                <section>
+                    <h3>Traditional Approach (Without IoC)</h3>
+                    <pre><code class="java" data-trim>
+public class OrderService {
+    // Tight coupling - OrderService creates its dependencies
+    private PaymentService paymentService = new PaymentService();
+    private InventoryService inventoryService = new InventoryService();
+
+    public void processOrder(Order order) {
+        inventoryService.reserve(order);
+        paymentService.charge(order);
+    }
+}
+                    </code></pre>
+                    <p><strong>Problems:</strong></p>
+                    <ul>
+                        <li>Hard to test (can't mock dependencies)</li>
+                        <li>Hard to change implementations</li>
+                        <li>Violates Single Responsibility Principle</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>IoC Approach</h3>
+                    <pre><code class="java" data-trim>
+public class OrderService {
+    // Dependencies are injected, not created
+    private final PaymentService paymentService;
+    private final InventoryService inventoryService;
+
+    public OrderService(PaymentService paymentService,
+                        InventoryService inventoryService) {
+        this.paymentService = paymentService;
+        this.inventoryService = inventoryService;
+    }
+
+    public void processOrder(Order order) {
+        inventoryService.reserve(order);
+        paymentService.charge(order);
+    }
+}
+                    </code></pre>
+                    <p><strong>Benefits:</strong> Loose coupling, easy to test, easy to swap implementations</p>
+                </section>
+
+                <section>
+                    <h3>The IoC Container</h3>
+                    <pre><code class="text">
+┌─────────────────────────────────────────────┐
+│           Spring IoC Container               │
+│  ┌─────────────────────────────────────┐    │
+│  │         Bean Definitions             │    │
+│  │  - Class metadata                    │    │
+│  │  - Dependencies                      │    │
+│  │  - Scope                            │    │
+│  │  - Lifecycle callbacks              │    │
+│  └─────────────────────────────────────┘    │
+│                    │                         │
+│                    ▼                         │
+│  ┌─────────────────────────────────────┐    │
+│  │      Fully Configured Beans          │    │
+│  │  (Ready to use in application)       │    │
+│  └─────────────────────────────────────┘    │
+└─────────────────────────────────────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>ApplicationContext</h3>
+                    <p>The central interface for the Spring IoC container</p>
+                    <pre><code class="java" data-trim>
+// Creating an ApplicationContext
+ApplicationContext context =
+    new AnnotationConfigApplicationContext(AppConfig.class);
+
+// Getting a bean from the container
+OrderService orderService = context.getBean(OrderService.class);
+                    </code></pre>
+                    <p><strong>Common Implementations:</strong></p>
+                    <ul>
+                        <li><code>AnnotationConfigApplicationContext</code> - Java config</li>
+                        <li><code>ClassPathXmlApplicationContext</code> - XML config</li>
+                        <li><code>WebApplicationContext</code> - Web applications</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Section 3: Dependency Injection -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>Dependency Injection (DI)</h3>
+                </section>
+
+                <section>
+                    <h3>What is Dependency Injection?</h3>
+                    <blockquote>
+                        Dependency Injection is a design pattern where objects receive their dependencies
+                        from an external source rather than creating them internally.
+                    </blockquote>
+                    <p><strong>The "Hollywood Principle":</strong></p>
+                    <blockquote>"Don't call us, we'll call you"</blockquote>
+                </section>
+
+                <section>
+                    <h3>Types of Dependency Injection</h3>
+                    <pre><code class="text">
+┌────────────────────────────────────────────────────┐
+│              Dependency Injection                   │
+├────────────────┬────────────────┬─────────────────┤
+│  Constructor   │    Setter      │     Field       │
+│   Injection    │   Injection    │   Injection     │
+│   (Preferred)  │   (Optional)   │  (Avoid in     │
+│                │   dependencies │   production)   │
+└────────────────┴────────────────┴─────────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Constructor Injection (Recommended)</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class OrderService {
+
+    private final PaymentService paymentService;
+    private final InventoryService inventoryService;
+
+    // @Autowired is optional for single constructor (Spring 4.3+)
+    public OrderService(PaymentService paymentService,
+                        InventoryService inventoryService) {
+        this.paymentService = paymentService;
+        this.inventoryService = inventoryService;
+    }
+}
+                    </code></pre>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Immutable dependencies (final fields)</li>
+                        <li>Required dependencies are explicit</li>
+                        <li>Easy to test</li>
+                        <li>Fails fast if dependency missing</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Setter Injection</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationService {
+
+    private EmailService emailService;
+    private SmsService smsService;  // Optional dependency
+
+    @Autowired
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+    @Autowired(required = false)
+    public void setSmsService(SmsService smsService) {
+        this.smsService = smsService;
+    }
+}
+                    </code></pre>
+                    <p><strong>Use Cases:</strong> Optional dependencies, circular dependencies (use sparingly)</p>
+                </section>
+
+                <section>
+                    <h3>Field Injection (Avoid)</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;  // Not recommended!
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;  // Not recommended!
+}
+                    </code></pre>
+                    <p><strong>Why Avoid:</strong></p>
+                    <ul>
+                        <li>Hides dependencies</li>
+                        <li>Hard to test without Spring</li>
+                        <li>Can't make fields final</li>
+                        <li>Harder to detect design problems</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Section 4: Annotations -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>Java Annotations</h3>
+                </section>
+
+                <section>
+                    <h3>Core Stereotype Annotations</h3>
+                    <pre><code class="java" data-trim>
+@Component      // Generic Spring-managed component
+@Service        // Business logic layer
+@Repository     // Data access layer (+ exception translation)
+@Controller     // Web layer (MVC controller)
+@RestController // Web layer (REST API) = @Controller + @ResponseBody
+                    </code></pre>
+                    <pre><code class="text">
+┌─────────────────────────────────────────────────┐
+│                  @Component                      │
+│  ┌───────────┬───────────┬───────────────────┐  │
+│  │ @Service  │@Repository│   @Controller     │  │
+│  │           │           │ ┌───────────────┐ │  │
+│  │           │           │ │@RestController│ │  │
+│  │           │           │ └───────────────┘ │  │
+│  └───────────┴───────────┴───────────────────┘  │
+└─────────────────────────────────────────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>@Service Example</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public User createUser(String username, String password) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        return userRepository.save(user);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>@Qualifier Example</h3>
+                    <pre><code class="java" data-trim>
+public interface MessageSender {
+    void send(String message);
+}
+
+@Service
+@Qualifier("email")
+public class EmailSender implements MessageSender {
+    public void send(String message) { /* send email */ }
+}
+
+@Service
+@Qualifier("sms")
+public class SmsSender implements MessageSender {
+    public void send(String message) { /* send SMS */ }
+}
+
+@Service
+public class NotificationService {
+    private final MessageSender sender;
+
+    public NotificationService(@Qualifier("email") MessageSender sender) {
+        this.sender = sender;
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Bean Scopes</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Scope</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>singleton</code></td><td>One instance per container (default)</td></tr>
+                            <tr><td><code>prototype</code></td><td>New instance each time requested</td></tr>
+                            <tr><td><code>request</code></td><td>One instance per HTTP request</td></tr>
+                            <tr><td><code>session</code></td><td>One instance per HTTP session</td></tr>
+                            <tr><td><code>application</code></td><td>One instance per ServletContext</td></tr>
+                        </tbody>
+                    </table>
+                    <pre><code class="java" data-trim>
+@Service
+@Scope("prototype")
+public class ShoppingCart {
+    private List&lt;Item&gt; items = new ArrayList&lt;&gt;();
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Configuration -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Spring Configuration</h3>
+                </section>
+
+                <section>
+                    <h3>Configuration Approaches</h3>
+                    <pre><code class="text">
+┌────────────────────────────────────────────────────────┐
+│                 Spring Configuration                    │
+├──────────────────┬──────────────────┬─────────────────┤
+│    XML-based     │   Java-based     │  Annotation     │
+│   (Legacy)       │   (Preferred)    │    Scanning     │
+│                  │                  │  (Component)    │
+│  applicationContext │ @Configuration │  @Component    │
+│      .xml        │  @Bean          │  @Service, etc  │
+└──────────────────┴──────────────────┴─────────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Java-based Configuration</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        HikariDataSource ds = new HikariDataSource();
+        ds.setJdbcUrl("jdbc:postgresql://localhost:5432/mydb");
+        ds.setUsername("user");
+        ds.setPassword("password");
+        return ds;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Component Scanning</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+@ComponentScan(basePackages = "com.example.myapp")
+public class AppConfig {
+    // Beans in com.example.myapp will be auto-detected
+}
+
+// More specific scanning
+@ComponentScan(
+    basePackages = "com.example",
+    includeFilters = @ComponentScan.Filter(
+        type = FilterType.ANNOTATION,
+        classes = Service.class
+    ),
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.REGEX,
+        pattern = ".*Test.*"
+    )
+)
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Property Injection</h3>
+                    <pre><code class="properties">
+# application.properties
+app.name=My Application
+app.max-connections=100
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@Configuration
+@PropertySource("classpath:application.properties")
+public class AppConfig {
+
+    @Value("${app.name}")
+    private String appName;
+
+    @Value("${app.max-connections:50}")  // Default value
+    private int maxConnections;
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Profiles</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+@Profile("development")
+public class DevConfig {
+    @Bean
+    public DataSource dataSource() {
+        // H2 in-memory database for development
+    }
+}
+
+@Configuration
+@Profile("production")
+public class ProdConfig {
+    @Bean
+    public DataSource dataSource() {
+        // PostgreSQL for production
+    }
+}
+                    </code></pre>
+                    <p>Activate with: <code>-Dspring.profiles.active=production</code></p>
+                </section>
+
+                <section>
+                    <h3>Bean Lifecycle</h3>
+                    <pre><code class="text">
+┌─────────────────────────────────────────────────────────┐
+│                   Bean Lifecycle                         │
+├─────────────────────────────────────────────────────────┤
+│  1. Instantiation (Constructor)                          │
+│  2. Populate Properties (DI)                             │
+│  3. BeanNameAware.setBeanName()                         │
+│  4. BeanFactoryAware.setBeanFactory()                   │
+│  5. ApplicationContextAware.setApplicationContext()      │
+│  6. @PostConstruct / InitializingBean.afterPropertiesSet│
+│  7. Custom init-method                                   │
+│  ─────────────── BEAN READY ───────────────             │
+│  8. @PreDestroy / DisposableBean.destroy()              │
+│  9. Custom destroy-method                                │
+└─────────────────────────────────────────────────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Lifecycle Callbacks</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class CacheService {
+
+    private Cache cache;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Initializing cache...");
+        cache = new Cache();
+        cache.warmUp();
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        System.out.println("Cleaning up cache...");
+        cache.clear();
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 6: Advanced DI Patterns -->
+            <section>
+                <section>
+                    <h2>Section 6</h2>
+                    <h3>Advanced Dependency Injection</h3>
+                </section>
+
+                <section>
+                    <h3>@Primary Annotation</h3>
+                    <p>When multiple beans of the same type exist, @Primary marks the default</p>
+                    <pre><code class="java" data-trim>
+public interface NotificationService {
+    void send(String message);
+}
+
+@Service
+@Primary  // This will be injected by default
+public class EmailNotificationService implements NotificationService {
+    public void send(String message) { /* email */ }
+}
+
+@Service
+public class SmsNotificationService implements NotificationService {
+    public void send(String message) { /* sms */ }
+}
+
+@Service
+public class AlertService {
+    // EmailNotificationService injected (it's @Primary)
+    public AlertService(NotificationService service) { }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Custom Qualifier Annotations</h3>
+                    <pre><code class="java" data-trim>
+// Create a custom qualifier
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
+public @interface NotificationType {
+    String value();
+}
+
+// Apply to implementations
+@Service
+@NotificationType("email")
+public class EmailNotificationService implements NotificationService { }
+
+@Service
+@NotificationType("sms")
+public class SmsNotificationService implements NotificationService { }
+
+// Use in injection
+public AlertService(@NotificationType("sms") NotificationService svc) { }
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Injecting All Implementations</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationManager {
+
+    private final List&lt;NotificationService&gt; allServices;
+    private final Map&lt;String, NotificationService&gt; serviceMap;
+
+    public NotificationManager(
+            List&lt;NotificationService&gt; allServices,
+            Map&lt;String, NotificationService&gt; serviceMap) {
+        this.allServices = allServices;  // All implementations
+        this.serviceMap = serviceMap;    // Keyed by bean name
+    }
+
+    public void notifyAll(String message) {
+        allServices.forEach(svc -> svc.send(message));
+    }
+
+    public void notifyVia(String type, String message) {
+        serviceMap.get(type + "NotificationService").send(message);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Prototype Scope with ObjectFactory</h3>
+                    <pre><code class="java" data-trim>
+@Component
+@Scope("prototype")
+public class ShoppingCart {
+    private final String cartId = UUID.randomUUID().toString();
+    // Each injection gets a NEW instance
+}
+
+@Service
+public class OrderService {
+
+    // Problem: This gets ONE cart, even though it's prototype
+    // private final ShoppingCart cart;
+
+    // Solution: Use ObjectFactory to get new instances
+    private final ObjectFactory&lt;ShoppingCart&gt; cartFactory;
+
+    public OrderService(ObjectFactory&lt;ShoppingCart&gt; cartFactory) {
+        this.cartFactory = cartFactory;
+    }
+
+    public ShoppingCart createNewCart() {
+        return cartFactory.getObject();  // New instance each call
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Interface-Based Lifecycle</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class DatabaseConnection implements InitializingBean, DisposableBean {
+
+    private Connection connection;
+
+    // Called after all properties set
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("Opening database connection...");
+        this.connection = DriverManager.getConnection(url);
+    }
+
+    // Called on container shutdown
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("Closing database connection...");
+        if (connection != null) connection.close();
+    }
+}
+                    </code></pre>
+                    <p>Alternative to @PostConstruct/@PreDestroy - useful for framework code</p>
+                </section>
+
+                <section>
+                    <h3>@Bean Lifecycle Methods</h3>
+                    <pre><code class="java" data-trim>
+// For third-party classes you can't annotate
+public class ExternalCacheClient {
+    public void connect() { /* ... */ }
+    public void disconnect() { /* ... */ }
+}
+
+@Configuration
+public class CacheConfig {
+
+    @Bean(initMethod = "connect", destroyMethod = "disconnect")
+    public ExternalCacheClient cacheClient() {
+        ExternalCacheClient client = new ExternalCacheClient();
+        client.setHost("localhost");
+        client.setPort(6379);
+        return client;
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Circular Dependencies</h3>
+                    <pre><code class="java" data-trim>
+// This creates a circular dependency - Spring will fail!
+@Service
+public class ServiceA {
+    public ServiceA(ServiceB serviceB) { }  // A needs B
+}
+
+@Service
+public class ServiceB {
+    public ServiceB(ServiceA serviceA) { }  // B needs A
+}
+                    </code></pre>
+                    <pre><code class="text">
+Error: The dependencies form a cycle:
+┌─────┐
+|  serviceA
+↑     ↓
+|  serviceB
+└─────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Resolving Circular Dependencies</h3>
+                    <p><strong>Solution 1: @Lazy</strong> (delays proxy creation)</p>
+                    <pre><code class="java" data-trim>
+@Service
+public class ServiceA {
+    public ServiceA(@Lazy ServiceB serviceB) { }
+}
+                    </code></pre>
+                    <p><strong>Solution 2: Setter Injection</strong></p>
+                    <pre><code class="java" data-trim>
+@Service
+public class ServiceB {
+    private ServiceA serviceA;
+
+    @Autowired
+    public void setServiceA(ServiceA serviceA) {
+        this.serviceA = serviceA;
+    }
+}
+                    </code></pre>
+                    <p><strong>Best Solution: Refactor</strong> - Extract common logic to a third service</p>
+                </section>
+
+                <section>
+                    <h3>Conditional Beans</h3>
+                    <pre><code class="java" data-trim>
+// Only create bean if property is set
+@Service
+@ConditionalOnProperty(name = "feature.notifications.enabled",
+                       havingValue = "true")
+public class NotificationService { }
+
+// Only create if class is on classpath
+@Configuration
+@ConditionalOnClass(name = "com.rabbitmq.client.Connection")
+public class RabbitMQConfig { }
+
+// Only create if another bean exists
+@Service
+@ConditionalOnBean(DataSource.class)
+public class DatabaseHealthCheck { }
+
+// Only create if bean is missing
+@Service
+@ConditionalOnMissingBean(CacheService.class)
+public class DefaultCacheService { }
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <section>
+                    <h2>Module 1 Summary</h2>
+                    <h3>Key Takeaways</h3>
+                    <ol>
+                        <li><strong>IoC</strong> inverts the control of object creation from your code to the container</li>
+                        <li><strong>DI</strong> is the mechanism Spring uses to provide dependencies</li>
+                        <li><strong>Constructor injection</strong> is the preferred DI method</li>
+                        <li><strong>Stereotype annotations</strong> (@Service, @Repository, etc.) register beans</li>
+                        <li><strong>Java configuration</strong> with @Configuration is the modern approach</li>
+                        <li><strong>Profiles</strong> enable environment-specific configuration</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Lab Exercise</h2>
+                    <h3>Lab 1: Spring Fundamentals</h3>
+                    <p>You will build a simple Spring application that demonstrates:</p>
+                    <ul>
+                        <li>Creating and configuring beans</li>
+                        <li>Using dependency injection</li>
+                        <li>Working with multiple profiles</li>
+                        <li>Implementing lifecycle callbacks</li>
+                    </ul>
+                    <p><strong>Time:</strong> 45-60 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <h3>Next Module: Introduction to Web Services</h3>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>

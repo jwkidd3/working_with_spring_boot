@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Spring Security</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal ul, .reveal ol { font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 5</h1>
+                <h2>Spring Security</h2>
+                <p>Day 3 Morning - ~3 hours</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Understand Spring Security fundamentals</li>
+                    <li>Implement authentication and authorization</li>
+                    <li>Secure REST APIs with JWT</li>
+                    <li>Configure method-level security</li>
+                </ul>
+            </section>
+
+            <!-- Section 1: Spring Security Fundamentals -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>Spring Security Fundamentals</h3>
+                </section>
+
+                <section>
+                    <h3>What is Spring Security?</h3>
+                    <ul>
+                        <li>Powerful and customizable authentication and access-control framework</li>
+                        <li>De facto standard for securing Spring applications</li>
+                        <li>Protection against common attacks (CSRF, session fixation, etc.)</li>
+                    </ul>
+                    <pre><code data-trim>
++---------------------------------------------------------+
+|                  Spring Security                         |
++-----------------+---------------------------------------+
+|  Authentication |  Who are you?                         |
+|  Authorization  |  What can you do?                     |
+|  Protection     |  Defense against attacks              |
++-----------------+---------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Security Architecture</h3>
+                    <pre><code data-trim>
+HTTP Request
+     |
+     v
++---------------------------------------------------------+
+|              Security Filter Chain                       |
+|  +---------------------------------------------------+  |
+|  |  CorsFilter                                        |  |
+|  |  CsrfFilter                                        |  |
+|  |  UsernamePasswordAuthenticationFilter              |  |
+|  |  BasicAuthenticationFilter                         |  |
+|  |  BearerTokenAuthenticationFilter                   |  |
+|  |  ExceptionTranslationFilter                        |  |
+|  |  FilterSecurityInterceptor                         |  |
+|  +---------------------------------------------------+  |
++---------------------------------------------------------+
+     |
+     v
+Controller / Resource
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Adding Spring Security</h3>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <p><strong>Default behavior:</strong></p>
+                    <ul>
+                        <li>All endpoints require authentication</li>
+                        <li>Form login enabled</li>
+                        <li>Generated password in console</li>
+                        <li>User: <code>user</code></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Default Security (Auto-configured)</h3>
+                    <p>When you add the dependency with no configuration:</p>
+                    <pre><code data-trim>
+Using generated security password: 8e3d7b2a-...
+
+This generated password is for development use only.
+                    </code></pre>
+                    <p>Access any endpoint:</p>
+                    <ul>
+                        <li>Browser - Login form appears</li>
+                        <li>API - 401 Unauthorized</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Section 2: Basic Authentication -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>Basic Authentication</h3>
+                </section>
+
+                <section>
+                    <h3>What is Basic Auth?</h3>
+                    <pre><code data-trim>
+Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+                    |__ base64(username:password)
+                    </code></pre>
+                    <p><strong>Characteristics:</strong></p>
+                    <ul>
+                        <li>Credentials sent with every request</li>
+                        <li>Must use HTTPS in production</li>
+                        <li>Simple but limited</li>
+                        <li>No logout mechanism</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Configuring Basic Auth</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())  // Disable for REST APIs
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>In-Memory Users</h3>
+                    <pre><code class="java" data-trim>
+@Bean
+public UserDetailsService userDetailsService() {
+    UserDetails user = User.builder()
+        .username("user")
+        .password(passwordEncoder().encode("password"))
+        .roles("USER")
+        .build();
+
+    UserDetails admin = User.builder()
+        .username("admin")
+        .password(passwordEncoder().encode("admin123"))
+        .roles("ADMIN", "USER")
+        .build();
+
+    return new InMemoryUserDetailsManager(user, admin);
+}
+
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Testing Basic Auth</h3>
+                    <pre><code class="bash" data-trim>
+# Without credentials - 401 Unauthorized
+curl http://localhost:8080/api/tasks
+
+# With credentials
+curl -u user:password http://localhost:8080/api/tasks
+
+# Base64 encoded
+curl -H "Authorization: Basic dXNlcjpwYXNzd29yZA==" \
+     http://localhost:8080/api/tasks
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 3: Role-Based Authorization -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>Role-Based Authorization</h3>
+                </section>
+
+                <section>
+                    <h3>Authorization Concepts</h3>
+                    <pre><code data-trim>
++---------------------------------------------------------+
+|                    Authorization                         |
++---------------------+-----------------------------------+
+|  Role-Based (RBAC)  |  User has ROLE_ADMIN              |
+|  Permission-Based   |  User has task:read permission    |
+|  Attribute-Based    |  User owns the resource           |
++---------------------+-----------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>URL-Based Authorization</h3>
+                    <pre><code class="java" data-trim>
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests(auth -> auth
+            // Public endpoints
+            .requestMatchers("/api/public/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/tasks/**").permitAll()
+
+            // Role-based access
+            .requestMatchers(HttpMethod.POST, "/api/tasks/**").hasRole("USER")
+            .requestMatchers(HttpMethod.DELETE, "/api/tasks/**").hasRole("ADMIN")
+
+            // Authority-based (more flexible)
+            .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+
+            // All other requests
+            .anyRequest().authenticated()
+        );
+
+    return http.build();
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Method-Level Security</h3>
+                    <p>Enable with annotation:</p>
+                    <pre><code class="java" data-trim>
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+    // ...
+}
+                    </code></pre>
+                    <p>Use annotations on methods:</p>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskService {
+
+    @PreAuthorize("hasRole('USER')")
+    public Task create(CreateTaskRequest request) {
+        // ...
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public void delete(Long id) {
+        // ...
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or #task.createdBy == authentication.name")
+    public Task update(Task task) {
+        // ...
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Security Annotations</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Annotation</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>@PreAuthorize</code></td><td>Check before method execution</td></tr>
+                            <tr><td><code>@PostAuthorize</code></td><td>Check after method execution</td></tr>
+                            <tr><td><code>@PreFilter</code></td><td>Filter input collection</td></tr>
+                            <tr><td><code>@PostFilter</code></td><td>Filter output collection</td></tr>
+                            <tr><td><code>@Secured</code></td><td>Simple role check</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>@PreAuthorize Examples</h3>
+                    <pre><code class="java" data-trim>
+// Simple role check
+@PreAuthorize("hasRole('ADMIN')")
+public void adminOnly() { }
+
+// Multiple roles
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+public void adminOrManager() { }
+
+// Authority check
+@PreAuthorize("hasAuthority('task:delete')")
+public void deleteTask(Long id) { }
+
+// SpEL expression with method parameters
+@PreAuthorize("#userId == authentication.principal.id")
+public User getUser(Long userId) { }
+
+// Complex expression
+@PreAuthorize("hasRole('ADMIN') or " +
+              "(hasRole('USER') and #task.owner == authentication.name)")
+public void updateTask(Task task) { }
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>@PostAuthorize and @PostFilter</h3>
+                    <pre><code class="java" data-trim>
+// Check result after execution
+@PostAuthorize("returnObject.owner == authentication.name")
+public Task getTask(Long id) {
+    return taskRepository.findById(id);
+}
+
+// Filter the returned collection
+@PostFilter("filterObject.owner == authentication.name or hasRole('ADMIN')")
+public List&lt;Task&gt; getAllTasks() {
+    return taskRepository.findAll();
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 4: JWT Authentication -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>JWT Authentication</h3>
+                </section>
+
+                <section>
+                    <h3>What is JWT?</h3>
+                    <p><strong>JSON Web Token</strong> - Compact, self-contained token for transmitting information</p>
+                    <pre><code data-trim>
+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.SflKxwRJSMeKKF2QT4fwpM
+     |                      |                   |
+     |__ Header             |__ Payload         |__ Signature
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>JWT Structure</h3>
+                    <pre><code class="json" data-trim>
+// Header
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+
+// Payload
+{
+  "sub": "user@example.com",
+  "name": "John Doe",
+  "roles": ["ROLE_USER"],
+  "iat": 1616239022,
+  "exp": 1616242622
+}
+
+// Signature
+HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret
+)
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>JWT Flow</h3>
+                    <pre><code data-trim>
++------------+                           +------------+
+|   Client   |                           |   Server   |
++-----+------+                           +-----+------+
+      |                                        |
+      |  1. POST /auth/login                   |
+      |     {username, password}               |
+      |--------------------------------------->|
+      |                                        | Validate credentials
+      |  2. Return JWT                         |
+      |<---------------------------------------|
+      |                                        |
+      |  3. GET /api/tasks                     |
+      |     Authorization: Bearer &lt;JWT&gt;        |
+      |--------------------------------------->|
+      |                                        | Validate JWT
+      |  4. Return data                        |
+      |<---------------------------------------|
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>JWT Dependencies</h3>
+                    <pre><code class="xml" data-trim>
+&lt;!-- JWT Library --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+    &lt;artifactId&gt;jjwt-api&lt;/artifactId&gt;
+    &lt;version&gt;0.12.3&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+    &lt;artifactId&gt;jjwt-impl&lt;/artifactId&gt;
+    &lt;version&gt;0.12.3&lt;/version&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+    &lt;artifactId&gt;jjwt-jackson&lt;/artifactId&gt;
+    &lt;version&gt;0.12.3&lt;/version&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>JWT Service</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class JwtService {
+
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Value("${jwt.expiration}")
+    private long expiration;
+
+    public String generateToken(UserDetails userDetails) {
+        return Jwts.builder()
+            .subject(userDetails.getUsername())
+            .claim("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList())
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(getSigningKey())
+            .compact();
+    }
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    // ... helper methods
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>JWT Filter</h3>
+                    <pre><code class="java" data-trim>
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        final String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String jwt = authHeader.substring(7);
+        final String username = jwtService.extractUsername(jwt);
+
+        if (username != null && SecurityContextHolder.getContext()
+                .getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Security Config for JWT</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Authentication Controller</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthenticationManager authManager;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    @PostMapping("/login")
+    public ResponseEntity&lt;AuthResponse&gt; login(@RequestBody LoginRequest request) {
+        authManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                request.getUsername(),
+                request.getPassword()
+            )
+        );
+
+        UserDetails user = userDetailsService.loadUserByUsername(request.getUsername());
+        String token = jwtService.generateToken(user);
+
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity&lt;AuthResponse&gt; register(@RequestBody RegisterRequest request) {
+        // Create user and return token
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Testing JWT Authentication</h3>
+                    <pre><code class="bash" data-trim>
+# 1. Login to get token
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user","password":"password"}' | jq -r '.token')
+
+# 2. Use token in requests
+curl http://localhost:8080/api/tasks \
+  -H "Authorization: Bearer $TOKEN"
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Database User Store -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Database User Store</h3>
+                </section>
+
+                <section>
+                    <h3>User Entity</h3>
+                    <pre><code class="java" data-trim>
+@Entity
+@Table(name = "users")
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String email;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles")
+    @Enumerated(EnumType.STRING)
+    private Set&lt;Role&gt; roles = new HashSet&lt;&gt;();
+
+    private boolean enabled = true;
+
+    @Override
+    public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
+        return roles.stream()
+            .map(role -> new SimpleGrantedAuthority(role.name()))
+            .toList();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>User Repository</h3>
+                    <pre><code class="java" data-trim>
+@Repository
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    Optional&lt;User&gt; findByUsername(String username);
+
+    Optional&lt;User&gt; findByEmail(String email);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Custom UserDetailsService</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() ->
+                new UsernameNotFoundException("User not found: " + username));
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 6: Spring Boot Data REST Security -->
+            <section>
+                <section>
+                    <h2>Section 6</h2>
+                    <h3>Spring Boot Data REST Security</h3>
+                </section>
+
+                <section>
+                    <h3>Securing Spring Data REST</h3>
+                    <pre><code class="java" data-trim>
+@RepositoryRestResource
+public interface TaskRepository extends JpaRepository&lt;Task, Long&gt; {
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    Task save(Task task);
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    void deleteById(Long id);
+
+    @Override
+    @PostFilter("filterObject.owner == authentication.name or hasRole('ADMIN')")
+    List&lt;Task&gt; findAll();
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Repository Event Handlers</h3>
+                    <pre><code class="java" data-trim>
+@RepositoryEventHandler
+@Component
+public class TaskEventHandler {
+
+    @HandleBeforeCreate
+    @PreAuthorize("hasRole('USER')")
+    public void handleBeforeCreate(Task task) {
+        // Set owner to current user
+        String currentUser = SecurityContextHolder.getContext()
+            .getAuthentication().getName();
+        task.setOwner(currentUser);
+    }
+
+    @HandleBeforeDelete
+    @PreAuthorize("hasRole('ADMIN') or #task.owner == authentication.name")
+    public void handleBeforeDelete(Task task) {
+        // Validate delete permission
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <section>
+                    <h2>Module 5 Summary</h2>
+                    <h3>Key Takeaways</h3>
+                    <ol>
+                        <li><strong>Spring Security</strong> provides comprehensive security features</li>
+                        <li><strong>Basic Auth</strong> is simple but requires HTTPS</li>
+                        <li><strong>JWT</strong> enables stateless authentication for APIs</li>
+                        <li><strong>Role-based authorization</strong> controls access to resources</li>
+                        <li><strong>Method security</strong> provides fine-grained control</li>
+                        <li><strong>Database user store</strong> for production applications</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Lab Exercise</h2>
+                    <h3>Lab 5: Securing the Task API</h3>
+                    <p>You will:</p>
+                    <ul>
+                        <li>Add Spring Security to the Task API</li>
+                        <li>Implement JWT authentication</li>
+                        <li>Configure role-based authorization</li>
+                        <li>Secure endpoints with method-level security</li>
+                    </ul>
+                    <p><strong>Time:</strong> 60-75 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <h3>Next Module: Service Orchestration</h3>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>

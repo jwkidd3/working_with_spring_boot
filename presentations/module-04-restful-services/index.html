@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Building RESTful Web Services with Spring Boot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal ul, .reveal ol { font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 4</h1>
+                <h2>Building RESTful Web Services with Spring Boot</h2>
+                <p>Day 2 Afternoon - ~4 hours</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Initialize Spring Boot projects effectively</li>
+                    <li>Implement complete CRUD operations</li>
+                    <li>Add HATEOAS support</li>
+                    <li>Monitor and manage your application</li>
+                    <li>Implement filtering and content negotiation</li>
+                </ul>
+            </section>
+
+            <!-- Section 1: Project Initialization -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>Project Initialization</h3>
+                </section>
+
+                <section>
+                    <h3>Spring Initializr</h3>
+                    <p>The fastest way to start a Spring Boot project:</p>
+                    <ul>
+                        <li><strong>Web:</strong> https://start.spring.io/</li>
+                        <li><strong>IDE Integration:</strong> IntelliJ, Eclipse, VS Code</li>
+                        <li><strong>CLI:</strong> <code>spring init --dependencies=web,data-jpa myproject</code></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Project Structure</h3>
+                    <pre><code data-trim>
+my-service/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/example/myservice/
+│   │   │       ├── MyServiceApplication.java
+│   │   │       ├── controller/
+│   │   │       ├── service/
+│   │   │       ├── repository/
+│   │   │       ├── entity/
+│   │   │       ├── dto/
+│   │   │       ├── exception/
+│   │   │       └── config/
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       ├── application-dev.properties
+│   │       └── application-prod.properties
+│   └── test/
+├── pom.xml
+└── README.md
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Essential Dependencies</h3>
+                    <pre><code class="xml" data-trim>
+&lt;!-- Core web functionality --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- Data persistence --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- Validation --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- HATEOAS --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-hateoas&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- Actuator (monitoring) --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 2: Complete CRUD Implementation -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>Complete CRUD Implementation</h3>
+                </section>
+
+                <section>
+                    <h3>RESTful Resource Design</h3>
+                    <p>For a <code>Product</code> resource:</p>
+                    <table>
+                        <thead>
+                            <tr><th>Operation</th><th>HTTP Method</th><th>Endpoint</th><th>Response</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Create</td><td>POST</td><td>/api/products</td><td>201 Created</td></tr>
+                            <tr><td>Read All</td><td>GET</td><td>/api/products</td><td>200 OK</td></tr>
+                            <tr><td>Read One</td><td>GET</td><td>/api/products/{id}</td><td>200 OK</td></tr>
+                            <tr><td>Update</td><td>PUT</td><td>/api/products/{id}</td><td>200 OK</td></tr>
+                            <tr><td>Partial Update</td><td>PATCH</td><td>/api/products/{id}</td><td>200 OK</td></tr>
+                            <tr><td>Delete</td><td>DELETE</td><td>/api/products/{id}</td><td>204 No Content</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Entity Design</h3>
+                    <pre><code class="java" data-trim>
+@Entity
+@Table(name = "products")
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @Column(nullable = false)
+    private Integer quantity;
+
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // ... lifecycle callbacks, getters, setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Request DTOs</h3>
+                    <pre><code class="java" data-trim>
+public class CreateProductRequest {
+
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 100)
+    private String name;
+
+    @Size(max = 1000)
+    private String description;
+
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be positive")
+    private BigDecimal price;
+
+    @NotNull(message = "Quantity is required")
+    @Min(value = 0, message = "Quantity cannot be negative")
+    private Integer quantity;
+
+    @NotNull(message = "Category is required")
+    private ProductCategory category;
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Response DTOs</h3>
+                    <pre><code class="java" data-trim>
+public class ProductResponse {
+    private Long id;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private Integer quantity;
+    private ProductCategory category;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    // Static factory method
+    public static ProductResponse from(Product product) {
+        ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setPrice(product.getPrice());
+        response.setQuantity(product.getQuantity());
+        response.setCategory(product.getCategory());
+        response.setCreatedAt(product.getCreatedAt());
+        response.setUpdatedAt(product.getUpdatedAt());
+        return response;
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Complete Controller</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;ProductResponse&gt;&gt; getAllProducts() {
+        List&lt;ProductResponse&gt; products = productService.findAll()
+            .stream()
+            .map(ProductResponse::from)
+            .toList();
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;ProductResponse&gt; getProduct(@PathVariable Long id) {
+        Product product = productService.findById(id);
+        return ResponseEntity.ok(ProductResponse.from(product));
+    }
+
+    // ... continued
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Controller (continued)</h3>
+                    <pre><code class="java" data-trim>
+    @PostMapping
+    public ResponseEntity&lt;ProductResponse&gt; createProduct(
+            @Valid @RequestBody CreateProductRequest request) {
+        Product product = productService.create(request);
+        URI location = URI.create("/api/products/" + product.getId());
+        return ResponseEntity
+            .created(location)
+            .body(ProductResponse.from(product));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity&lt;ProductResponse&gt; updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateProductRequest request) {
+        Product product = productService.update(id, request);
+        return ResponseEntity.ok(ProductResponse.from(product));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity&lt;Void&gt; deleteProduct(@PathVariable Long id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>PATCH for Partial Updates</h3>
+                    <pre><code class="java" data-trim>
+@PatchMapping("/{id}")
+public ResponseEntity&lt;ProductResponse&gt; patchProduct(
+        @PathVariable Long id,
+        @RequestBody Map&lt;String, Object&gt; updates) {
+    Product product = productService.patch(id, updates);
+    return ResponseEntity.ok(ProductResponse.from(product));
+}
+
+// In service
+public Product patch(Long id, Map&lt;String, Object&gt; updates) {
+    Product product = findById(id);
+
+    updates.forEach((key, value) -> {
+        switch (key) {
+            case "name" -> product.setName((String) value);
+            case "price" -> product.setPrice(new BigDecimal(value.toString()));
+            case "quantity" -> product.setQuantity((Integer) value);
+            // ... other fields
+        }
+    });
+
+    return productRepository.save(product);
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 3: HATEOAS -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>HATEOAS</h3>
+                </section>
+
+                <section>
+                    <h3>What is HATEOAS?</h3>
+                    <p><strong>Hypermedia as the Engine of Application State</strong></p>
+                    <ul>
+                        <li>Clients navigate the API through links</li>
+                        <li>Reduces coupling between client and server</li>
+                        <li>Self-documenting API responses</li>
+                    </ul>
+                    <pre><code class="json" data-trim>
+{
+  "id": 1,
+  "name": "Widget",
+  "price": 29.99,
+  "_links": {
+    "self": { "href": "/api/products/1" },
+    "update": { "href": "/api/products/1" },
+    "delete": { "href": "/api/products/1" },
+    "category": { "href": "/api/categories/electronics" }
+  }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Spring HATEOAS Setup</h3>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-hateoas&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <p>Key classes:</p>
+                    <ul>
+                        <li><code>RepresentationModel</code> - Base class for resources</li>
+                        <li><code>EntityModel&lt;T&gt;</code> - Wrapper for single entity</li>
+                        <li><code>CollectionModel&lt;T&gt;</code> - Wrapper for collections</li>
+                        <li><code>Link</code> - Represents a hypermedia link</li>
+                        <li><code>WebMvcLinkBuilder</code> - Builds links from controllers</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Creating a HATEOAS Resource</h3>
+                    <pre><code class="java" data-trim>
+@GetMapping("/{id}")
+public EntityModel&lt;ProductResponse&gt; getProduct(@PathVariable Long id) {
+    Product product = productService.findById(id);
+    ProductResponse response = ProductResponse.from(product);
+
+    return EntityModel.of(response,
+        linkTo(methodOn(ProductController.class).getProduct(id))
+            .withSelfRel(),
+        linkTo(methodOn(ProductController.class).getAllProducts())
+            .withRel("products"),
+        linkTo(methodOn(ProductController.class).deleteProduct(id))
+            .withRel("delete")
+    );
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>HATEOAS Response</h3>
+                    <pre><code class="json" data-trim>
+{
+  "id": 1,
+  "name": "Widget",
+  "description": "A useful widget",
+  "price": 29.99,
+  "quantity": 100,
+  "category": "ELECTRONICS",
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/api/products/1"
+    },
+    "products": {
+      "href": "http://localhost:8080/api/products"
+    },
+    "delete": {
+      "href": "http://localhost:8080/api/products/1"
+    }
+  }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Collection with HATEOAS</h3>
+                    <pre><code class="java" data-trim>
+@GetMapping
+public CollectionModel&lt;EntityModel&lt;ProductResponse&gt;&gt; getAllProducts() {
+    List&lt;EntityModel&lt;ProductResponse&gt;&gt; products = productService.findAll()
+        .stream()
+        .map(product -> {
+            ProductResponse response = ProductResponse.from(product);
+            return EntityModel.of(response,
+                linkTo(methodOn(ProductController.class)
+                    .getProduct(product.getId())).withSelfRel());
+        })
+        .toList();
+
+    return CollectionModel.of(products,
+        linkTo(methodOn(ProductController.class).getAllProducts())
+            .withSelfRel());
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>RepresentationModelAssembler</h3>
+                    <p>For cleaner code, create an assembler:</p>
+                    <pre><code class="java" data-trim>
+@Component
+public class ProductModelAssembler
+        implements RepresentationModelAssembler&lt;Product,
+                                               EntityModel&lt;ProductResponse&gt;&gt; {
+
+    @Override
+    public EntityModel&lt;ProductResponse&gt; toModel(Product product) {
+        ProductResponse response = ProductResponse.from(product);
+
+        return EntityModel.of(response,
+            linkTo(methodOn(ProductController.class)
+                .getProduct(product.getId())).withSelfRel(),
+            linkTo(methodOn(ProductController.class)
+                .getAllProducts()).withRel("products")
+        );
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Using the Assembler</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    private final ProductService productService;
+    private final ProductModelAssembler assembler;
+
+    // constructor...
+
+    @GetMapping
+    public CollectionModel&lt;EntityModel&lt;ProductResponse&gt;&gt; getAllProducts() {
+        List&lt;Product&gt; products = productService.findAll();
+        return assembler.toCollectionModel(products);
+    }
+
+    @GetMapping("/{id}")
+    public EntityModel&lt;ProductResponse&gt; getProduct(@PathVariable Long id) {
+        Product product = productService.findById(id);
+        return assembler.toModel(product);
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 4: Monitoring with Actuator -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>Monitoring with Actuator</h3>
+                </section>
+
+                <section>
+                    <h3>Spring Boot Actuator</h3>
+                    <p>Production-ready features for monitoring:</p>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <p>Default endpoint: <code>/actuator</code></p>
+                </section>
+
+                <section>
+                    <h3>Actuator Endpoints</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Endpoint</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>/actuator/health</code></td><td>Application health status</td></tr>
+                            <tr><td><code>/actuator/info</code></td><td>Application information</td></tr>
+                            <tr><td><code>/actuator/metrics</code></td><td>Application metrics</td></tr>
+                            <tr><td><code>/actuator/env</code></td><td>Environment properties</td></tr>
+                            <tr><td><code>/actuator/loggers</code></td><td>Logger configurations</td></tr>
+                            <tr><td><code>/actuator/beans</code></td><td>All Spring beans</td></tr>
+                            <tr><td><code>/actuator/mappings</code></td><td>All @RequestMappings</td></tr>
+                            <tr><td><code>/actuator/threaddump</code></td><td>Thread dump</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Enable Endpoints</h3>
+                    <pre><code class="properties" data-trim>
+# Expose specific endpoints
+management.endpoints.web.exposure.include=health,info,metrics,env
+
+# Expose all endpoints (not recommended in production)
+management.endpoints.web.exposure.include=*
+
+# Change base path
+management.endpoints.web.base-path=/manage
+
+# Enable detailed health info
+management.endpoint.health.show-details=always
+
+# Application info
+info.app.name=Product Service
+info.app.version=1.0.0
+info.app.description=Product management microservice
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Health Endpoint</h3>
+                    <pre><code class="json" data-trim>
+{
+  "status": "UP",
+  "components": {
+    "db": {
+      "status": "UP",
+      "details": {
+        "database": "HSQLDB",
+        "validationQuery": "isValid()"
+      }
+    },
+    "diskSpace": {
+      "status": "UP",
+      "details": {
+        "total": 499963174912,
+        "free": 123456789012
+      }
+    },
+    "ping": {
+      "status": "UP"
+    }
+  }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Custom Health Indicator</h3>
+                    <pre><code class="java" data-trim>
+@Component
+public class ExternalServiceHealthIndicator implements HealthIndicator {
+
+    private final ExternalServiceClient client;
+
+    public ExternalServiceHealthIndicator(ExternalServiceClient client) {
+        this.client = client;
+    }
+
+    @Override
+    public Health health() {
+        try {
+            boolean isHealthy = client.healthCheck();
+            if (isHealthy) {
+                return Health.up()
+                    .withDetail("service", "external-api")
+                    .withDetail("status", "reachable")
+                    .build();
+            }
+            return Health.down()
+                .withDetail("service", "external-api")
+                .withDetail("error", "Service unavailable")
+                .build();
+        } catch (Exception e) {
+            return Health.down(e).build();
+        }
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Custom Metrics</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class ProductService {
+
+    private final Counter productCreatedCounter;
+    private final Timer productSearchTimer;
+
+    public ProductService(MeterRegistry registry) {
+        this.productCreatedCounter = Counter.builder("products.created")
+            .description("Number of products created")
+            .register(registry);
+
+        this.productSearchTimer = Timer.builder("products.search")
+            .description("Time taken to search products")
+            .register(registry);
+    }
+
+    public Product create(CreateProductRequest request) {
+        Product product = // ... create product
+        productCreatedCounter.increment();
+        return product;
+    }
+
+    public List&lt;Product&gt; search(String query) {
+        return productSearchTimer.record(() -> {
+            // ... search logic
+        });
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Filtering and Content Negotiation -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Filtering and Content Negotiation</h3>
+                </section>
+
+                <section>
+                    <h3>Filtering Strategies</h3>
+                    <pre><code data-trim>
++---------------------------------------------------------+
+|                  Filtering Options                       |
++-----------------+---------------------------------------+
+|  Static Filter  |  Same fields for all responses        |
+|  Dynamic Filter |  Client specifies fields              |
+|  Query Filter   |  Filter by query parameters           |
++-----------------+---------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Static Filtering with @JsonIgnore</h3>
+                    <pre><code class="java" data-trim>
+public class UserResponse {
+    private Long id;
+    private String username;
+    private String email;
+
+    @JsonIgnore  // Never include in JSON
+    private String password;
+
+    @JsonIgnore
+    private String ssn;
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Static Filtering with @JsonIgnoreProperties</h3>
+                    <pre><code class="java" data-trim>
+@JsonIgnoreProperties({"password", "ssn", "internalId"})
+public class UserResponse {
+    private Long id;
+    private Long internalId;
+    private String username;
+    private String password;
+    private String ssn;
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Dynamic Filtering with @JsonFilter</h3>
+                    <pre><code class="java" data-trim>
+@JsonFilter("ProductFilter")
+public class Product {
+    private Long id;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private BigDecimal cost;  // Internal field
+    private Integer quantity;
+}
+
+// In controller
+@GetMapping("/{id}")
+public MappingJacksonValue getProduct(@PathVariable Long id) {
+    Product product = productService.findById(id);
+
+    SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
+        .filterOutAllExcept("id", "name", "price", "quantity");
+
+    FilterProvider filters = new SimpleFilterProvider()
+        .addFilter("ProductFilter", filter);
+
+    MappingJacksonValue mapping = new MappingJacksonValue(product);
+    mapping.setFilters(filters);
+
+    return mapping;
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Query Parameter Filtering</h3>
+                    <pre><code class="java" data-trim>
+@GetMapping
+public List&lt;ProductResponse&gt; getProducts(
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) BigDecimal minPrice,
+        @RequestParam(required = false) BigDecimal maxPrice,
+        @RequestParam(required = false) Boolean inStock) {
+
+    return productService.findWithFilters(category, minPrice, maxPrice, inStock)
+        .stream()
+        .map(ProductResponse::from)
+        .toList();
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Specification Pattern for Complex Filtering</h3>
+                    <pre><code class="java" data-trim>
+public class ProductSpecification {
+
+    public static Specification&lt;Product&gt; hasCategory(String category) {
+        return (root, query, cb) ->
+            category == null ? null : cb.equal(root.get("category"), category);
+    }
+
+    public static Specification&lt;Product&gt; priceBetween(BigDecimal min,
+                                                       BigDecimal max) {
+        return (root, query, cb) -> {
+            if (min == null && max == null) return null;
+            if (min == null) return cb.lessThanOrEqualTo(root.get("price"), max);
+            if (max == null) return cb.greaterThanOrEqualTo(root.get("price"), min);
+            return cb.between(root.get("price"), min, max);
+        };
+    }
+
+    public static Specification&lt;Product&gt; inStock() {
+        return (root, query, cb) ->
+            cb.greaterThan(root.get("quantity"), 0);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Content Negotiation</h3>
+                    <p>Spring Boot supports multiple response formats:</p>
+                    <pre><code class="properties" data-trim>
+# Enable content negotiation
+spring.mvc.contentnegotiation.favor-parameter=true
+spring.mvc.contentnegotiation.parameter-name=format
+                    </code></pre>
+                    <p>Request formats:</p>
+                    <ul>
+                        <li><code>Accept: application/json</code> - JSON response</li>
+                        <li><code>Accept: application/xml</code> - XML response</li>
+                        <li><code>/api/products?format=json</code> - JSON response</li>
+                        <li><code>/api/products?format=xml</code> - XML response</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>XML Support</h3>
+                    <pre><code class="xml" data-trim>
+&lt;!-- Add Jackson XML support --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.fasterxml.jackson.dataformat&lt;/groupId&gt;
+    &lt;artifactId&gt;jackson-dataformat-xml&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    @GetMapping(produces = {
+        MediaType.APPLICATION_JSON_VALUE,
+        MediaType.APPLICATION_XML_VALUE
+    })
+    public List&lt;ProductResponse&gt; getProducts() {
+        return productService.findAll()
+            .stream()
+            .map(ProductResponse::from)
+            .toList();
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 6: API Versioning -->
+            <section>
+                <section>
+                    <h2>Section 6</h2>
+                    <h3>API Versioning</h3>
+                </section>
+
+                <section>
+                    <h3>Versioning Strategies</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Strategy</th><th>Example</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>URI Path</td><td><code>/api/v1/products</code></td></tr>
+                            <tr><td>Query Param</td><td><code>/api/products?version=1</code></td></tr>
+                            <tr><td>Header</td><td><code>X-API-Version: 1</code></td></tr>
+                            <tr><td>Media Type</td><td><code>Accept: application/vnd.api.v1+json</code></td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>URI Path Versioning</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/v1/products")
+public class ProductControllerV1 {
+    // V1 implementation
+}
+
+@RestController
+@RequestMapping("/api/v2/products")
+public class ProductControllerV2 {
+    // V2 implementation with new features
+}
+                    </code></pre>
+                    <p><strong>Pros:</strong> Clear, cacheable, easy to understand</p>
+                    <p><strong>Cons:</strong> URL pollution, breaks REST principles</p>
+                </section>
+
+                <section>
+                    <h3>Header Versioning</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    @GetMapping(headers = "X-API-Version=1")
+    public List&lt;ProductResponseV1&gt; getProductsV1() {
+        // V1 response
+    }
+
+    @GetMapping(headers = "X-API-Version=2")
+    public List&lt;ProductResponseV2&gt; getProductsV2() {
+        // V2 response with additional fields
+    }
+}
+                    </code></pre>
+                    <p><strong>Pros:</strong> Clean URLs, flexible</p>
+                    <p><strong>Cons:</strong> Not visible in URL, harder to test</p>
+                </section>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <section>
+                    <h2>Module 4 Summary</h2>
+                    <h3>Key Takeaways</h3>
+                    <ol>
+                        <li><strong>CRUD operations</strong> follow RESTful conventions</li>
+                        <li><strong>DTOs</strong> separate API contracts from entities</li>
+                        <li><strong>HATEOAS</strong> enables discoverable APIs</li>
+                        <li><strong>Actuator</strong> provides production-ready monitoring</li>
+                        <li><strong>Filtering</strong> can be static or dynamic</li>
+                        <li><strong>Content negotiation</strong> supports multiple formats</li>
+                        <li><strong>Versioning</strong> enables API evolution</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Lab Exercise</h2>
+                    <h3>Lab 4: Advanced REST Features</h3>
+                    <p>You will enhance the Task API with:</p>
+                    <ul>
+                        <li>HATEOAS links</li>
+                        <li>Actuator monitoring</li>
+                        <li>Custom metrics</li>
+                        <li>Advanced filtering</li>
+                        <li>API documentation</li>
+                    </ul>
+                    <p><strong>Time:</strong> 60-75 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <h3>Next Module: Spring Security</h3>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>

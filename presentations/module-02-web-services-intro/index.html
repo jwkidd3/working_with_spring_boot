@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Module 2: Introduction to Web Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal .small-code pre code { font-size: 0.6em; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 2</h1>
+                <h2>Introduction to Web Services</h2>
+                <p>Working with Spring Boot Workshop</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Understand HTTP fundamentals and request/response patterns</li>
+                    <li>Compare SOAP and REST web services</li>
+                    <li>Handle exceptions in web services</li>
+                    <li>Implement request validation</li>
+                    <li>Configure applications with properties and profiles</li>
+                </ul>
+                <p><strong>Duration:</strong> ~2.5 hours (Day 1 Afternoon)</p>
+            </section>
+
+            <!-- Section 1: HTTP Fundamentals -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>HTTP Fundamentals</h3>
+                </section>
+
+                <section>
+                    <h3>What is HTTP?</h3>
+                    <p><strong>HyperText Transfer Protocol</strong></p>
+                    <ul>
+                        <li>Application layer protocol for distributed systems</li>
+                        <li>Foundation of data communication on the web</li>
+                        <li>Request-response protocol</li>
+                        <li>Stateless by default</li>
+                    </ul>
+                    <pre><code class="text">
+┌────────────┐              ┌────────────┐
+│   Client   │  ─Request─>  │   Server   │
+│  (Browser) │  <─Response─ │   (API)    │
+└────────────┘              └────────────┘
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>HTTP Request Structure</h3>
+                    <pre><code class="http" data-trim>
+POST /api/users HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Authorization: Bearer eyJhbGc...
+Accept: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+                    </code></pre>
+                    <p><strong>Components:</strong></p>
+                    <ol>
+                        <li><strong>Request Line:</strong> Method + URI + HTTP Version</li>
+                        <li><strong>Headers:</strong> Metadata about the request</li>
+                        <li><strong>Body:</strong> Data being sent (optional)</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>HTTP Methods</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Purpose</th><th>Idempotent</th><th>Safe</th><th>Has Body</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>GET</td><td>Retrieve resource</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+                            <tr><td>POST</td><td>Create resource</td><td>No</td><td>No</td><td>Yes</td></tr>
+                            <tr><td>PUT</td><td>Replace resource</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+                            <tr><td>PATCH</td><td>Partial update</td><td>No</td><td>No</td><td>Yes</td></tr>
+                            <tr><td>DELETE</td><td>Remove resource</td><td>Yes</td><td>No</td><td>Optional</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>HTTP Status Codes</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Range</th><th>Category</th><th>Examples</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1xx</td><td>Informational</td><td>100 Continue</td></tr>
+                            <tr><td>2xx</td><td>Success</td><td>200 OK, 201 Created, 204 No Content</td></tr>
+                            <tr><td>3xx</td><td>Redirection</td><td>301 Moved, 304 Not Modified</td></tr>
+                            <tr><td>4xx</td><td>Client Error</td><td>400 Bad Request, 401 Unauthorized, 404 Not Found</td></tr>
+                            <tr><td>5xx</td><td>Server Error</td><td>500 Internal Error, 503 Service Unavailable</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Common Status Codes in APIs</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Code</th><th>Name</th><th>When to Use</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>200</td><td>OK</td><td>Successful GET, PUT, PATCH</td></tr>
+                            <tr><td>201</td><td>Created</td><td>Successful POST</td></tr>
+                            <tr><td>204</td><td>No Content</td><td>Successful DELETE</td></tr>
+                            <tr><td>400</td><td>Bad Request</td><td>Invalid request data</td></tr>
+                            <tr><td>401</td><td>Unauthorized</td><td>Missing/invalid credentials</td></tr>
+                            <tr><td>403</td><td>Forbidden</td><td>Valid credentials, no permission</td></tr>
+                            <tr><td>404</td><td>Not Found</td><td>Resource doesn't exist</td></tr>
+                            <tr><td>422</td><td>Unprocessable</td><td>Validation failure</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+            <!-- Section 2: SOAP vs REST -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>SOAP Web Services</h3>
+                </section>
+
+                <section>
+                    <h3>What is SOAP?</h3>
+                    <p><strong>Simple Object Access Protocol</strong></p>
+                    <ul>
+                        <li>XML-based messaging protocol</li>
+                        <li>Uses HTTP, SMTP, or other transports</li>
+                        <li>Defined by WSDL (Web Services Description Language)</li>
+                        <li>Enterprise standard for complex integrations</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>SOAP Message Structure</h3>
+                    <pre><code class="xml" data-trim>
+&lt;?xml version="1.0"?&gt;
+&lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;soap:Header&gt;
+        &lt;auth:Token&gt;xyz123&lt;/auth:Token&gt;
+    &lt;/soap:Header&gt;
+    &lt;soap:Body&gt;
+        &lt;m:GetUser xmlns:m="http://example.com/user"&gt;
+            &lt;m:UserId&gt;123&lt;/m:UserId&gt;
+        &lt;/m:GetUser&gt;
+    &lt;/soap:Body&gt;
+&lt;/soap:Envelope&gt;
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>REST vs SOAP</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Aspect</th><th>REST</th><th>SOAP</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Protocol</td><td>HTTP only</td><td>HTTP, SMTP, etc.</td></tr>
+                            <tr><td>Data Format</td><td>JSON, XML, etc.</td><td>XML only</td></tr>
+                            <tr><td>Contract</td><td>Optional (OpenAPI)</td><td>Required (WSDL)</td></tr>
+                            <tr><td>Complexity</td><td>Simple</td><td>Complex</td></tr>
+                            <tr><td>Performance</td><td>Fast</td><td>Slower</td></tr>
+                            <tr><td>Caching</td><td>Built-in (HTTP)</td><td>Manual</td></tr>
+                            <tr><td>Best For</td><td>Web/Mobile APIs</td><td>Enterprise SOA</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+            <!-- Section 3: REST in Spring Boot -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>REST Web Services</h3>
+                </section>
+
+                <section>
+                    <h3>What is REST?</h3>
+                    <p><strong>REpresentational State Transfer</strong></p>
+                    <ul>
+                        <li>Architectural style (not a protocol)</li>
+                        <li>Defined by Roy Fielding in 2000</li>
+                        <li>Uses HTTP methods semantically</li>
+                        <li>Resource-oriented design</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>REST Principles</h3>
+                    <ol>
+                        <li><strong>Client-Server:</strong> Separation of concerns</li>
+                        <li><strong>Stateless:</strong> No client state on server</li>
+                        <li><strong>Cacheable:</strong> Responses declare cacheability</li>
+                        <li><strong>Uniform Interface:</strong> Standardized interactions</li>
+                        <li><strong>Layered System:</strong> Intermediaries allowed</li>
+                        <li><strong>Code on Demand:</strong> Optional executable code</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>RESTful URL Design</h3>
+                    <table>
+                        <thead>
+                            <tr><th>HTTP Method</th><th>URL</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>GET</td><td>/products</td><td>List all products</td></tr>
+                            <tr><td>GET</td><td>/products/42</td><td>Get product 42</td></tr>
+                            <tr><td>POST</td><td>/products</td><td>Create new product</td></tr>
+                            <tr><td>PUT</td><td>/products/42</td><td>Replace product 42</td></tr>
+                            <tr><td>PATCH</td><td>/products/42</td><td>Update product 42</td></tr>
+                            <tr><td>DELETE</td><td>/products/42</td><td>Delete product 42</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Basic REST Controller</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public List&lt;User&gt; getAllUsers() {
+        return userService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Request Mappings</h3>
+                    <pre><code class="java" data-trim>
+// Path variables
+@GetMapping("/{id}")
+public User getById(@PathVariable Long id) { ... }
+
+// Multiple path variables
+@GetMapping("/{userId}/orders/{orderId}")
+public Order getOrder(@PathVariable Long userId,
+                      @PathVariable Long orderId) { ... }
+
+// Query parameters
+@GetMapping
+public List&lt;User&gt; search(
+    @RequestParam(required = false) String name,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "20") int size) { ... }
+
+// Request headers
+@GetMapping
+public User getCurrent(@RequestHeader("Authorization") String auth) { ... }
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>ResponseEntity</h3>
+                    <pre><code class="java" data-trim>
+// 201 Created with Location header
+@PostMapping
+public ResponseEntity&lt;User&gt; create(@RequestBody CreateUserRequest req) {
+    User user = userService.create(req);
+    URI location = URI.create("/api/users/" + user.getId());
+    return ResponseEntity.created(location).body(user);
+}
+
+// 204 No Content
+@DeleteMapping("/{id}")
+public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
+    userService.delete(id);
+    return ResponseEntity.noContent().build();
+}
+
+// Custom headers
+@GetMapping
+public ResponseEntity&lt;List&lt;User&gt;&gt; getAll() {
+    List&lt;User&gt; users = userService.findAll();
+    return ResponseEntity.ok()
+        .header("X-Total-Count", String.valueOf(users.size()))
+        .body(users);
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 4: Exception Handling -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>Exception Handling</h3>
+                </section>
+
+                <section>
+                    <h3>Why Proper Exception Handling?</h3>
+                    <ul>
+                        <li>Consistent error responses for API consumers</li>
+                        <li>Hide internal implementation details</li>
+                        <li>Provide meaningful error messages</li>
+                        <li>Log errors for debugging</li>
+                        <li>Return appropriate HTTP status codes</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Custom Exception</h3>
+                    <pre><code class="java" data-trim>
+public class ResourceNotFoundException extends RuntimeException {
+
+    private final String resourceName;
+    private final String fieldName;
+    private final Object fieldValue;
+
+    public ResourceNotFoundException(String resourceName,
+                                     String fieldName,
+                                     Object fieldValue) {
+        super(String.format("%s not found with %s: '%s'",
+                resourceName, fieldName, fieldValue));
+        this.resourceName = resourceName;
+        this.fieldName = fieldName;
+        this.fieldValue = fieldValue;
+    }
+
+    // Getters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Global Exception Handler</h3>
+                    <pre><code class="java" data-trim>
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(ResourceNotFoundException ex,
+                                        HttpServletRequest request) {
+        return ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(404)
+            .error("Not Found")
+            .message(ex.getMessage())
+            .path(request.getRequestURI())
+            .build();
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGeneric(Exception ex, HttpServletRequest request) {
+        return ErrorResponse.builder()
+            .status(500)
+            .error("Internal Server Error")
+            .message("An unexpected error occurred")
+            .path(request.getRequestURI())
+            .build();
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Error Response Example</h3>
+                    <pre><code class="json" data-trim>
+{
+  "timestamp": "2024-01-15T10:30:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "User not found with id: '999'",
+  "path": "/api/users/999"
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Validation -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Request Validation</h3>
+                </section>
+
+                <section>
+                    <h3>Why Validate?</h3>
+                    <ul>
+                        <li>Prevent invalid data from entering the system</li>
+                        <li>Provide clear feedback to API consumers</li>
+                        <li>Reduce bugs from unexpected data</li>
+                        <li>Security (prevent injection attacks)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Jakarta Bean Validation Annotations</h3>
+                    <pre><code class="text">
+@NotNull      - Must not be null
+@NotEmpty     - Must not be null or empty (strings/collections)
+@NotBlank     - Must not be null and must have non-whitespace
+@Size         - Size constraints for strings/collections
+@Min / @Max   - Numeric bounds
+@Email        - Valid email format
+@Pattern      - Regex match
+@Past/@Future - Date constraints
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>DTO with Validation</h3>
+                    <pre><code class="java" data-trim>
+public class CreateUserRequest {
+
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 100, message = "Name must be 2-100 characters")
+    private String name;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    private String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",
+        message = "Password must contain uppercase, lowercase, and digit"
+    )
+    private String password;
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Enable Validation in Controller</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @PostMapping
+    public ResponseEntity&lt;User&gt; createUser(
+            @Valid @RequestBody CreateUserRequest request) {
+        User user = userService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+}
+                    </code></pre>
+                    <p>The <code>@Valid</code> annotation triggers validation.</p>
+                </section>
+
+                <section>
+                    <h3>Validation Error Response</h3>
+                    <pre><code class="json" data-trim>
+{
+  "timestamp": "2024-01-15T10:30:00",
+  "status": 400,
+  "error": "Validation Failed",
+  "message": "Request validation failed",
+  "path": "/api/users",
+  "fieldErrors": [
+    {
+      "field": "email",
+      "message": "Invalid email format",
+      "rejectedValue": "invalid-email"
+    },
+    {
+      "field": "password",
+      "message": "Password must be at least 8 characters",
+      "rejectedValue": "short"
+    }
+  ]
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Configuration & Profiles -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Configuration & Profiles</h3>
+                </section>
+
+                <section>
+                    <h3>Application Properties</h3>
+                    <p>Spring Boot reads from <code>application.properties</code> or <code>application.yml</code>:</p>
+                    <pre><code class="properties" data-trim>
+# application.properties
+spring.application.name=my-api
+server.port=8080
+
+# Custom properties
+app.notification.enabled=true
+app.notification.max-retries=3
+app.notification.sender=noreply@example.com
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Reading Properties with @Value</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationService {
+
+    @Value("${app.notification.enabled}")
+    private boolean enabled;
+
+    @Value("${app.notification.max-retries}")
+    private int maxRetries;
+
+    // Default value if property not found
+    @Value("${app.notification.timeout:30}")
+    private int timeout;
+
+    public void send(String message) {
+        if (!enabled) return;
+        // Send with retry logic...
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Type-Safe Config: @ConfigurationProperties</h3>
+                    <pre><code class="java" data-trim>
+@ConfigurationProperties(prefix = "app.notification")
+@Validated
+public class NotificationProperties {
+
+    private boolean enabled = true;
+
+    @Min(1) @Max(10)
+    private int maxRetries = 3;
+
+    @NotBlank
+    private String sender;
+
+    private Duration timeout = Duration.ofSeconds(30);
+
+    // Getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Enabling @ConfigurationProperties</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+@EnableConfigurationProperties(NotificationProperties.class)
+public class AppConfig {
+}
+
+// Or scan all @ConfigurationProperties classes
+@SpringBootApplication
+@ConfigurationPropertiesScan
+public class MyApplication { }
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationService {
+
+    private final NotificationProperties props;
+
+    public NotificationService(NotificationProperties props) {
+        this.props = props;  // Injected automatically
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Nested Configuration</h3>
+                    <pre><code class="java" data-trim>
+@ConfigurationProperties(prefix = "app.notification")
+public class NotificationProperties {
+
+    private final Email email = new Email();
+    private final Sms sms = new Sms();
+
+    public static class Email {
+        private String host = "localhost";
+        private int port = 25;
+        // getters/setters
+    }
+
+    public static class Sms {
+        private boolean enabled = false;
+        private String provider;
+        // getters/setters
+    }
+}
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+app.notification.email.host=smtp.example.com
+app.notification.email.port=587
+app.notification.sms.enabled=true
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Spring Profiles</h3>
+                    <p>Environment-specific configuration:</p>
+                    <pre><code data-trim>
+src/main/resources/
+├── application.properties          # Default
+├── application-dev.properties      # Development
+├── application-staging.properties  # Staging
+└── application-prod.properties     # Production
+                    </code></pre>
+                    <p>Activate profile:</p>
+                    <pre><code class="bash" data-trim>
+# Command line
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Environment variable
+export SPRING_PROFILES_ACTIVE=prod
+
+# In application.properties
+spring.profiles.active=dev
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Profile-Specific Beans</h3>
+                    <pre><code class="java" data-trim>
+@Service
+@Profile("dev")
+public class DevEmailSender implements EmailSender {
+    public void send(String to, String body) {
+        log.info("DEV: Would send to {} : {}", to, body);
+    }
+}
+
+@Service
+@Profile("prod")
+public class ProdEmailSender implements EmailSender {
+    public void send(String to, String body) {
+        // Actually send email via SMTP
+        mailSender.send(createMessage(to, body));
+    }
+}
+                    </code></pre>
+                    <p>Spring injects the correct implementation based on active profile</p>
+                </section>
+
+                <section>
+                    <h3>@ConditionalOnProperty</h3>
+                    <p>Create beans only when properties match:</p>
+                    <pre><code class="java" data-trim>
+@Service
+@ConditionalOnProperty(
+    name = "app.features.analytics",
+    havingValue = "true",
+    matchIfMissing = true  // Default to true
+)
+public class AnalyticsService {
+    public void track(String event) { ... }
+}
+
+@Service
+@ConditionalOnProperty(
+    name = "app.features.beta",
+    havingValue = "true"
+)
+public class BetaFeatureService {
+    // Only created if app.features.beta=true
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Configuration Precedence</h3>
+                    <p>Higher precedence overrides lower:</p>
+                    <ol>
+                        <li>Command line arguments (<code>--server.port=9090</code>)</li>
+                        <li>Environment variables (<code>SERVER_PORT=9090</code>)</li>
+                        <li>External config: <code>./config/application.properties</code></li>
+                        <li>External: <code>./application.properties</code></li>
+                        <li>Profile-specific: <code>application-{profile}.properties</code></li>
+                        <li>Default: <code>application.properties</code></li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>Configuration Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Practice</th><th>Reason</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Use @ConfigurationProperties</td><td>Type-safe, IDE support</td></tr>
+                            <tr><td>Validate properties</td><td>Fail fast on startup</td></tr>
+                            <tr><td>Use profiles for env</td><td>Same code, different config</td></tr>
+                            <tr><td>Don't commit secrets</td><td>Use env vars or vaults</td></tr>
+                            <tr><td>Document properties</td><td>Javadoc in properties class</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <section>
+                    <h2>Module 2 Summary</h2>
+                    <h3>Key Takeaways</h3>
+                    <ol>
+                        <li><strong>HTTP fundamentals</strong> are the foundation of web services</li>
+                        <li><strong>REST</strong> is resource-oriented using HTTP methods semantically</li>
+                        <li><strong>@RestControllerAdvice</strong> provides global exception handling</li>
+                        <li><strong>Bean Validation</strong> ensures request data integrity</li>
+                        <li><strong>@ConfigurationProperties</strong> provides type-safe configuration</li>
+                        <li><strong>Profiles</strong> enable environment-specific settings</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Lab Exercises</h2>
+                    <h3>Lab 2: REST API Basics</h3>
+                    <p>You will build a REST API that:</p>
+                    <ul>
+                        <li>Implements CRUD operations for a resource</li>
+                        <li>Handles exceptions globally</li>
+                        <li>Validates request data</li>
+                        <li>Returns proper HTTP status codes</li>
+                    </ul>
+                    <p><strong>Time:</strong> 45-60 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Lab Exercises</h2>
+                    <h3>Lab 3: Configuration & Profiles</h3>
+                    <p>You will implement:</p>
+                    <ul>
+                        <li>Type-safe configuration with @ConfigurationProperties</li>
+                        <li>Profile-specific beans for dev/prod environments</li>
+                        <li>Feature flags with @ConditionalOnProperty</li>
+                        <li>Environment variable overrides</li>
+                    </ul>
+                    <p><strong>Time:</strong> 45-60 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <h3>Next Module: Using Spring Boot with Databases</h3>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>

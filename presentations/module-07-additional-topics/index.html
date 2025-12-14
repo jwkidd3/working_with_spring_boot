@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7: Additional Topics & Wrap-up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal ul, .reveal ol { font-size: 0.9em; }
+        .checkmark { color: #5cb85c; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 7</h1>
+                <h2>Additional Topics & Wrap-up</h2>
+                <p>Day 3 Afternoon - ~2 hours</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Spring Boot CLI for rapid development</li>
+                    <li>Testing strategies for Spring Boot applications</li>
+                    <li>Packaging and deployment options</li>
+                    <li>API documentation with OpenAPI/Swagger</li>
+                    <li>Best practices and patterns</li>
+                    <li>Q&A and course wrap-up</li>
+                </ul>
+            </section>
+
+            <!-- Section 1: Spring Boot CLI -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>Spring Boot CLI</h3>
+                </section>
+
+                <section>
+                    <h3>What is Spring Boot CLI?</h3>
+                    <ul>
+                        <li>Command-line tool for rapid Spring development</li>
+                        <li>Run Groovy scripts with Spring Boot features</li>
+                        <li>Quick prototyping and testing</li>
+                        <li>Automatic dependency resolution</li>
+                    </ul>
+                    <pre><code class="bash" data-trim>
+# Install on macOS
+brew install spring-boot-cli
+
+# Or download from spring.io
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Quick Start with CLI</h3>
+                    <p>Create <code>hello.groovy</code>:</p>
+                    <pre><code class="groovy" data-trim>
+@RestController
+class HelloController {
+
+    @GetMapping("/")
+    String hello() {
+        "Hello from Spring Boot CLI!"
+    }
+}
+                    </code></pre>
+                    <p>Run it:</p>
+                    <pre><code class="bash" data-trim>
+spring run hello.groovy
+                    </code></pre>
+                    <p><em>That's it! No pom.xml, no main class, no build step!</em></p>
+                </section>
+
+                <section>
+                    <h3>CLI Features</h3>
+                    <pre><code class="bash" data-trim>
+# Run Groovy scripts
+spring run app.groovy
+
+# Create new project
+spring init --dependencies=web,data-jpa myproject
+
+# Run tests
+spring test test.groovy
+
+# Package as JAR
+spring jar my-app.jar app.groovy
+
+# Show dependencies
+spring grab --list
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>CLI Project Generation</h3>
+                    <pre><code class="bash" data-trim>
+# Interactive project creation
+spring init
+
+# Specific dependencies
+spring init --dependencies=web,data-jpa,security myproject
+
+# With build tool
+spring init --build=gradle myproject
+
+# List available dependencies
+spring init --list
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>When to Use CLI</h3>
+                    <p><strong>Good for:</strong></p>
+                    <ul>
+                        <li>Quick prototypes</li>
+                        <li>Testing ideas</li>
+                        <li>Learning Spring</li>
+                        <li>Simple scripts</li>
+                    </ul>
+                    <p><strong>Not for:</strong></p>
+                    <ul>
+                        <li>Production applications</li>
+                        <li>Complex projects</li>
+                        <li>Team development</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Section 2: Testing Spring Boot Applications -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>Testing Spring Boot Applications</h3>
+                </section>
+
+                <section>
+                    <h3>Testing Pyramid</h3>
+                    <pre><code data-trim>
+              /\
+             /  \
+            / E2E\        Few, slow, expensive
+           /------\
+          /Integration\   Some, medium speed
+         /--------------\
+        /    Unit       \  Many, fast, cheap
+       /------------------\
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Test Dependencies</h3>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <p>Includes:</p>
+                    <ul>
+                        <li>JUnit 5</li>
+                        <li>Mockito</li>
+                        <li>AssertJ</li>
+                        <li>Spring Test</li>
+                        <li>JSONPath</li>
+                        <li>Hamcrest</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Unit Testing Services</h3>
+                    <pre><code class="java" data-trim>
+@ExtendWith(MockitoExtension.class)
+class TaskServiceTest {
+
+    @Mock
+    private TaskRepository taskRepository;
+
+    @InjectMocks
+    private TaskService taskService;
+
+    @Test
+    void shouldCreateTask() {
+        // Arrange
+        Task task = new Task("Test Task");
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+
+        // Act
+        Task result = taskService.create("Test Task", "Description");
+
+        // Assert
+        assertThat(result.getTitle()).isEqualTo("Test Task");
+        verify(taskRepository).save(any(Task.class));
+    }
+
+    @Test
+    void shouldThrowWhenTaskNotFound() {
+        when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.findById(999L))
+            .isInstanceOf(TaskNotFoundException.class)
+            .hasMessage("Task not found: 999");
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Integration Testing with @SpringBootTest</h3>
+                    <pre><code class="java" data-trim>
+@SpringBootTest
+@AutoConfigureMockMvc
+class TaskControllerIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @BeforeEach
+    void setup() {
+        taskRepository.deleteAll();
+    }
+
+    @Test
+    void shouldCreateTask() throws Exception {
+        mockMvc.perform(post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "title": "Integration Test Task",
+                        "description": "Testing"
+                    }
+                    """))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.title").value("Integration Test Task"));
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Sliced Tests</h3>
+                    <p>Test only specific layers:</p>
+                    <pre><code class="java" data-trim>
+// Web layer only
+@WebMvcTest(TaskController.class)
+class TaskControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private TaskService taskService;
+}
+
+// JPA layer only
+@DataJpaTest
+class TaskRepositoryTest {
+    @Autowired
+    private TaskRepository repository;
+}
+
+// JSON serialization only
+@JsonTest
+class TaskJsonTest {
+    @Autowired
+    private JacksonTester&lt;Task&gt; json;
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Testing with Security</h3>
+                    <pre><code class="java" data-trim>
+@WebMvcTest(TaskController.class)
+@Import(SecurityConfig.class)
+class SecuredTaskControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private TaskService taskService;
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void userCanGetTasks() throws Exception {
+        mockMvc.perform(get("/api/tasks"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void userCannotDeleteTasks() throws Exception {
+        mockMvc.perform(delete("/api/tasks/1"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void adminCanDeleteTasks() throws Exception {
+        mockMvc.perform(delete("/api/tasks/1"))
+            .andExpect(status().isNoContent());
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>TestContainers for Real Databases</h3>
+                    <pre><code class="java" data-trim>
+@SpringBootTest
+@Testcontainers
+class TaskRepositoryContainerTest {
+
+    @Container
+    static PostgreSQLContainer&lt;?&gt; postgres = new PostgreSQLContainer&lt;&gt;("postgres:15")
+        .withDatabaseName("testdb")
+        .withUsername("test")
+        .withPassword("test");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Autowired
+    private TaskRepository repository;
+
+    @Test
+    void shouldSaveTask() {
+        Task task = repository.save(new Task("Test"));
+        assertThat(task.getId()).isNotNull();
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 3: Deployment & Containerization -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>Packaging & Deployment</h3>
+                </section>
+
+                <section>
+                    <h3>Building for Production</h3>
+                    <pre><code class="bash" data-trim>
+# Maven
+./mvnw clean package -DskipTests
+
+# Creates executable JAR in target/
+java -jar target/myapp-0.0.1-SNAPSHOT.jar
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+# Production profile
+spring.profiles.active=prod
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Externalized Configuration</h3>
+                    <p><strong>Environment variables:</strong></p>
+                    <pre><code class="bash" data-trim>
+export SPRING_DATASOURCE_URL=jdbc:postgresql://prod:5432/mydb
+export SPRING_DATASOURCE_USERNAME=produser
+java -jar myapp.jar
+                    </code></pre>
+                    <p><strong>Command line:</strong></p>
+                    <pre><code class="bash" data-trim>
+java -jar myapp.jar \
+  --spring.datasource.url=jdbc:postgresql://prod:5432/mydb \
+  --server.port=9090
+                    </code></pre>
+                    <p><strong>Config file location:</strong></p>
+                    <pre><code class="bash" data-trim>
+java -jar myapp.jar \
+  --spring.config.location=/etc/myapp/application.properties
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Docker Basics</h3>
+                    <pre><code class="dockerfile" data-trim>
+# Dockerfile
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+                    </code></pre>
+                    <pre><code class="bash" data-trim>
+# Build image
+docker build -t myapp:latest .
+
+# Run container
+docker run -p 8080:8080 myapp:latest
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Multi-Stage Docker Build</h3>
+                    <pre><code class="dockerfile" data-trim>
+# Build stage
+FROM eclipse-temurin:17-jdk-alpine AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
+
+# Run stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+                    </code></pre>
+                    <p><em>Smaller final image, build tools not included.</em></p>
+                </section>
+
+                <section>
+                    <h3>Spring Boot Docker Support</h3>
+                    <pre><code class="bash" data-trim>
+# Build image with Spring Boot Maven plugin
+./mvnw spring-boot:build-image \
+  -Dspring-boot.build-image.imageName=myapp:latest
+                    </code></pre>
+                    <p><em>Uses Cloud Native Buildpacks - no Dockerfile needed!</em></p>
+                </section>
+
+                <section>
+                    <h3>Docker Compose for Local Development</h3>
+                    <pre><code class="yaml" data-trim>
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydb
+    depends_on:
+      - db
+      - rabbitmq
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+
+volumes:
+  postgres_data:
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Kubernetes Basics</h3>
+                    <pre><code class="yaml" data-trim>
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: task-service
+  template:
+    metadata:
+      labels:
+        app: task-service
+    spec:
+      containers:
+      - name: task-service
+        image: myregistry/task-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 4: API Documentation with OpenAPI -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>API Documentation with OpenAPI</h3>
+                </section>
+
+                <section>
+                    <h3>Why API Documentation?</h3>
+                    <ul>
+                        <li><strong>Discoverability:</strong> Developers can explore your API</li>
+                        <li><strong>Self-service:</strong> Reduce support burden</li>
+                        <li><strong>Contract-first:</strong> Define API before implementing</li>
+                        <li><strong>Testing:</strong> Interactive API testing in browser</li>
+                        <li><strong>Client generation:</strong> Generate SDKs automatically</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>OpenAPI Specification (OAS)</h3>
+                    <ul>
+                        <li>Formerly known as Swagger Specification</li>
+                        <li>Industry standard for describing REST APIs</li>
+                        <li>Language-agnostic (JSON/YAML format)</li>
+                        <li>Current version: OpenAPI 3.1</li>
+                    </ul>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|  OpenAPI Ecosystem                                        |
++---------------+------------------------------------------+
+|  Specification |  API description format (JSON/YAML)     |
+|  Swagger UI    |  Interactive documentation viewer       |
+|  Swagger Editor|  Design & edit API specs                |
+|  Code Gen      |  Generate server/client code            |
++---------------+------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>SpringDoc OpenAPI Setup</h3>
+                    <pre><code class="xml" data-trim>
+&lt;!-- Add to pom.xml --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springdoc&lt;/groupId&gt;
+    &lt;artifactId&gt;springdoc-openapi-starter-webmvc-ui&lt;/artifactId&gt;
+    &lt;version&gt;2.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <p>That's it! Visit:</p>
+                    <ul>
+                        <li><code>/swagger-ui.html</code> - Interactive UI</li>
+                        <li><code>/v3/api-docs</code> - OpenAPI JSON</li>
+                        <li><code>/v3/api-docs.yaml</code> - OpenAPI YAML</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Swagger UI</h3>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|  Task API - Swagger UI                            [Explore]|
++----------------------------------------------------------+
+|  Tasks                                               [-] |
+|    GET    /api/tasks         List all tasks              |
+|    POST   /api/tasks         Create a new task           |
+|    GET    /api/tasks/{id}    Get task by ID              |
+|    PUT    /api/tasks/{id}    Update a task               |
+|    DELETE /api/tasks/{id}    Delete a task               |
++----------------------------------------------------------+
+|  Users                                               [-] |
+|    GET    /api/users         List all users              |
+|    ...                                                   |
++----------------------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>API Info Configuration</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+            .info(new Info()
+                .title("Task Management API")
+                .version("1.0.0")
+                .description("REST API for managing tasks")
+                .contact(new Contact()
+                    .name("API Support")
+                    .email("support@example.com"))
+                .license(new License()
+                    .name("Apache 2.0")
+                    .url("https://www.apache.org/licenses/LICENSE-2.0")));
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Documenting Endpoints with @Operation</h3>
+                    <pre><code class="java" data-trim>
+@RestController
+@RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "Task management endpoints")
+public class TaskController {
+
+    @Operation(
+        summary = "Get all tasks",
+        description = "Returns a paginated list of all tasks"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved tasks"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    @GetMapping
+    public Page&lt;TaskDto&gt; getAllTasks(Pageable pageable) {
+        return taskService.findAll(pageable);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Documenting Path & Query Parameters</h3>
+                    <pre><code class="java" data-trim>
+@Operation(summary = "Get task by ID")
+@ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Task found"),
+    @ApiResponse(responseCode = "404", description = "Task not found")
+})
+@GetMapping("/{id}")
+public TaskDto getTask(
+    @Parameter(description = "Task ID", required = true, example = "1")
+    @PathVariable Long id) {
+    return taskService.findById(id);
+}
+
+@GetMapping("/search")
+public List&lt;TaskDto&gt; searchTasks(
+    @Parameter(description = "Search keyword")
+    @RequestParam(required = false) String keyword,
+
+    @Parameter(description = "Filter by status")
+    @RequestParam(required = false) TaskStatus status) {
+    return taskService.search(keyword, status);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Documenting Request Bodies</h3>
+                    <pre><code class="java" data-trim>
+@Operation(summary = "Create a new task")
+@ApiResponse(responseCode = "201", description = "Task created")
+@PostMapping
+public ResponseEntity&lt;TaskDto&gt; createTask(
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "Task to create",
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = CreateTaskRequest.class),
+            examples = @ExampleObject(
+                name = "Sample Task",
+                value = """
+                    {
+                        "title": "Complete documentation",
+                        "description": "Write OpenAPI docs",
+                        "priority": "HIGH"
+                    }
+                    """
+            )
+        )
+    )
+    @RequestBody @Valid CreateTaskRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(taskService.create(request));
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Schema Documentation with @Schema</h3>
+                    <pre><code class="java" data-trim>
+@Schema(description = "Task creation request")
+public class CreateTaskRequest {
+
+    @Schema(
+        description = "Task title",
+        example = "Complete project documentation",
+        minLength = 3,
+        maxLength = 100,
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    @NotBlank
+    @Size(min = 3, max = 100)
+    private String title;
+
+    @Schema(description = "Task description", example = "Write all API docs")
+    private String description;
+
+    @Schema(description = "Task priority", example = "HIGH",
+            allowableValues = {"LOW", "MEDIUM", "HIGH"})
+    private Priority priority;
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Response Schema Documentation</h3>
+                    <pre><code class="java" data-trim>
+@Schema(description = "Task response")
+public class TaskDto {
+
+    @Schema(description = "Unique task identifier", example = "1")
+    private Long id;
+
+    @Schema(description = "Task title", example = "Complete documentation")
+    private String title;
+
+    @Schema(description = "Current task status", example = "IN_PROGRESS")
+    private TaskStatus status;
+
+    @Schema(description = "Creation timestamp",
+            example = "2024-01-15T10:30:00")
+    private LocalDateTime createdAt;
+
+    @Schema(description = "Last modification timestamp")
+    private LocalDateTime updatedAt;
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Grouping APIs with @Tag</h3>
+                    <pre><code class="java" data-trim>
+@Tag(name = "Tasks", description = "Task management operations")
+@RestController
+@RequestMapping("/api/tasks")
+public class TaskController { }
+
+@Tag(name = "Users", description = "User management operations")
+@RestController
+@RequestMapping("/api/users")
+public class UserController { }
+
+// Configure tag order and descriptions
+@Bean
+public OpenAPI customOpenAPI() {
+    return new OpenAPI()
+        .tags(List.of(
+            new io.swagger.v3.oas.models.tags.Tag()
+                .name("Tasks").description("Task CRUD operations"),
+            new io.swagger.v3.oas.models.tags.Tag()
+                .name("Users").description("User management")
+        ));
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Documenting Security</h3>
+                    <pre><code class="java" data-trim>
+@Bean
+public OpenAPI customOpenAPI() {
+    return new OpenAPI()
+        .info(new Info().title("Task API").version("1.0"))
+        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+        .components(new Components()
+            .addSecuritySchemes("bearerAuth",
+                new SecurityScheme()
+                    .type(SecurityScheme.Type.HTTP)
+                    .scheme("bearer")
+                    .bearerFormat("JWT")
+                    .description("Enter JWT token")));
+}
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+// Mark endpoints requiring auth
+@Operation(security = @SecurityRequirement(name = "bearerAuth"))
+@PostMapping
+public TaskDto createTask(@RequestBody CreateTaskRequest request) { }
+
+// Mark public endpoints
+@Operation(security = {})  // Empty = no auth required
+@GetMapping("/public")
+public List&lt;TaskDto&gt; getPublicTasks() { }
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Configuration Properties</h3>
+                    <pre><code class="properties" data-trim>
+# Swagger UI path
+springdoc.swagger-ui.path=/swagger-ui.html
+
+# OpenAPI docs path
+springdoc.api-docs.path=/v3/api-docs
+
+# Enable/disable
+springdoc.swagger-ui.enabled=true
+springdoc.api-docs.enabled=true
+
+# Try it out enabled by default
+springdoc.swagger-ui.try-it-out-enabled=true
+
+# Expand operations
+springdoc.swagger-ui.operations-sorter=method
+springdoc.swagger-ui.tags-sorter=alpha
+
+# Disable in production
+springdoc.swagger-ui.enabled=${SWAGGER_ENABLED:true}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Hiding Endpoints</h3>
+                    <pre><code class="java" data-trim>
+// Hide entire controller
+@Hidden
+@RestController
+@RequestMapping("/internal")
+public class InternalController { }
+
+// Hide specific endpoint
+@RestController
+@RequestMapping("/api/tasks")
+public class TaskController {
+
+    @Hidden  // Won't appear in docs
+    @GetMapping("/debug")
+    public DebugInfo getDebugInfo() { }
+
+    @Operation(hidden = true)  // Alternative syntax
+    @GetMapping("/internal-stats")
+    public Stats getStats() { }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Error Response Documentation</h3>
+                    <pre><code class="java" data-trim>
+@Schema(description = "Error response")
+public class ErrorResponse {
+
+    @Schema(description = "Error code", example = "TASK_NOT_FOUND")
+    private String code;
+
+    @Schema(description = "Error message", example = "Task not found: 42")
+    private String message;
+
+    @Schema(description = "Timestamp", example = "2024-01-15T10:30:00Z")
+    private Instant timestamp;
+}
+
+// Document common errors globally
+@Bean
+public OpenAPI customOpenAPI() {
+    return new OpenAPI()
+        .components(new Components()
+            .addSchemas("ErrorResponse",
+                new Schema&lt;ErrorResponse&gt;().$ref("#/components/schemas/ErrorResponse")));
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Best Practices -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Best Practices</h3>
+                </section>
+
+                <section>
+                    <h3>Project Structure</h3>
+                    <pre><code data-trim>
+src/main/java/com/example/myapp/
+├── config/           # Configuration classes
+├── controller/       # REST controllers
+├── dto/              # Request/Response DTOs
+├── entity/           # JPA entities
+├── exception/        # Custom exceptions
+├── repository/       # Data repositories
+├── service/          # Business logic
+├── security/         # Security components
+└── MyAppApplication.java
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Configuration Best Practices</h3>
+                    <pre><code class="java" data-trim>
+// Use @ConfigurationProperties for type-safe config
+@ConfigurationProperties(prefix = "app.task")
+public class TaskProperties {
+    private int maxTitleLength = 100;
+    private int defaultPageSize = 20;
+    private Duration timeout = Duration.ofSeconds(30);
+
+    // getters and setters
+}
+
+@Configuration
+@EnableConfigurationProperties(TaskProperties.class)
+public class TaskConfig {
+}
+                    </code></pre>
+                    <pre><code class="yaml" data-trim>
+# application.yml
+app:
+  task:
+    max-title-length: 150
+    default-page-size: 25
+    timeout: 45s
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Exception Handling Patterns</h3>
+                    <pre><code class="java" data-trim>
+// Base exception
+public abstract class BusinessException extends RuntimeException {
+    private final String errorCode;
+
+    protected BusinessException(String errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+}
+
+// Specific exceptions
+public class TaskNotFoundException extends BusinessException {
+    public TaskNotFoundException(Long id) {
+        super("TASK_NOT_FOUND", "Task not found: " + id);
+    }
+}
+
+// Global handler
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleBusinessException(BusinessException ex) {
+        // Log, build response, return appropriate status
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Logging Best Practices</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskService {
+
+    private static final Logger log = LoggerFactory.getLogger(TaskService.class);
+
+    public Task create(CreateTaskRequest request) {
+        log.info("Creating task: {}", request.getTitle());
+
+        try {
+            Task task = // ... create task
+            log.debug("Task created with ID: {}", task.getId());
+            return task;
+        } catch (Exception e) {
+            log.error("Failed to create task: {}", request.getTitle(), e);
+            throw e;
+        }
+    }
+}
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+# Structured logging
+logging.pattern.level=%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Performance Tips</h3>
+                    <ol>
+                        <li><strong>Use pagination</strong> for large datasets</li>
+                        <li><strong>Enable caching</strong> for frequently accessed data</li>
+                        <li><strong>Optimize JPA queries</strong> (avoid N+1)</li>
+                        <li><strong>Use async</strong> for long-running operations</li>
+                        <li><strong>Configure connection pools</strong> properly</li>
+                        <li><strong>Enable GZIP compression</strong></li>
+                    </ol>
+                    <pre><code class="properties" data-trim>
+# Enable compression
+server.compression.enabled=true
+server.compression.mime-types=application/json,text/html
+
+# Caching headers
+spring.web.resources.cache.cachecontrol.max-age=365d
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Security Checklist</h3>
+                    <ul>
+                        <li>Use HTTPS in production</li>
+                        <li>Validate all input</li>
+                        <li>Use parameterized queries (JPA does this)</li>
+                        <li>Implement proper authentication</li>
+                        <li>Use role-based authorization</li>
+                        <li>Secure sensitive endpoints</li>
+                        <li>Don't expose stack traces</li>
+                        <li>Keep dependencies updated</li>
+                        <li>Use secrets management</li>
+                        <li>Enable CORS properly</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Section 6: What We Learned -->
+            <section>
+                <section>
+                    <h2>Section 6</h2>
+                    <h3>What We Learned</h3>
+                </section>
+
+                <section>
+                    <h3>Course Summary</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Day</th><th>Topics</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>1</strong></td><td>Spring Fundamentals, IoC/DI, Web Services Intro</td></tr>
+                            <tr><td><strong>2</strong></td><td>Databases, JPA, Advanced REST, HATEOAS, Actuator</td></tr>
+                            <tr><td><strong>3</strong></td><td>Security, JWT, Service Orchestration, Messaging</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Key Technologies</h3>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|                  Spring Boot Stack                        |
++---------------+------------------------------------------+
+|  Spring MVC   |  REST Controllers, Exception Handling    |
++---------------+------------------------------------------+
+|  Spring Data  |  JPA, Repositories, Queries              |
++---------------+------------------------------------------+
+|  Security     |  Authentication, JWT, Authorization      |
++---------------+------------------------------------------+
+|  Events       |  Spring Events, Async Processing         |
++---------------+------------------------------------------+
+|  Actuator     |  Health, Metrics, Monitoring             |
++---------------+------------------------------------------+
+|  OpenAPI      |  SpringDoc, Swagger UI                   |
++---------------+------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Next Steps</h3>
+                    <ol>
+                        <li><strong>Practice</strong> - Build your own projects</li>
+                        <li><strong>Explore</strong> - Spring Cloud, Spring Batch</li>
+                        <li><strong>Learn</strong> - Kubernetes, CI/CD pipelines</li>
+                        <li><strong>Contribute</strong> - Open source Spring projects</li>
+                        <li><strong>Stay Updated</strong> - spring.io/blog</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>Resources</h3>
+                    <p><strong>Documentation:</strong></p>
+                    <ul>
+                        <li>https://spring.io/projects/spring-boot</li>
+                        <li>https://docs.spring.io/spring-boot/docs/current/reference/html/</li>
+                    </ul>
+                    <p><strong>Tutorials:</strong></p>
+                    <ul>
+                        <li>https://spring.io/guides</li>
+                        <li>https://www.baeldung.com/spring-boot</li>
+                    </ul>
+                    <p><strong>Community:</strong></p>
+                    <ul>
+                        <li>Stack Overflow (spring-boot tag)</li>
+                        <li>GitHub Discussions</li>
+                        <li>Spring Community Gitter</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Q&A and Wrap-up -->
+            <section>
+                <section>
+                    <h2>Q&A Session</h2>
+                    <h3>Questions?</h3>
+                    <p>Let's discuss:</p>
+                    <ul>
+                        <li>Any topics you'd like to revisit?</li>
+                        <li>Real-world application questions?</li>
+                        <li>Best practices for your specific use case?</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Thank You!</h2>
+                    <h3>Contact & Feedback</h3>
+                    <p><strong>Workshop Materials:</strong></p>
+                    <ul>
+                        <li>All presentations and labs available in course repository</li>
+                    </ul>
+                    <p><strong>Further Learning:</strong></p>
+                    <ul>
+                        <li>Spring Certification</li>
+                        <li>Spring Cloud Workshop</li>
+                        <li>Microservices Architecture</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Course Completion</h2>
+                    <h3>You've Learned:</h3>
+                    <ul>
+                        <li><span class="checkmark">&#10003;</span> Spring Framework Core Concepts</li>
+                        <li><span class="checkmark">&#10003;</span> Building REST APIs</li>
+                        <li><span class="checkmark">&#10003;</span> Database Integration with JPA</li>
+                        <li><span class="checkmark">&#10003;</span> Security with Spring Security & JWT</li>
+                        <li><span class="checkmark">&#10003;</span> Event-Driven Architecture</li>
+                        <li><span class="checkmark">&#10003;</span> Testing Strategies</li>
+                        <li><span class="checkmark">&#10003;</span> API Documentation with OpenAPI</li>
+                        <li><span class="checkmark">&#10003;</span> Deployment Best Practices</li>
+                    </ul>
+                    <p><strong>Congratulations on completing the course!</strong></p>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>

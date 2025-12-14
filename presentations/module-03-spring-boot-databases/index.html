@@ -1,0 +1,1203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Using Spring Boot with Databases</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal ul, .reveal ol { font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 3</h1>
+                <h2>Using Spring Boot with Databases</h2>
+                <p>Day 2 Morning - ~3 hours</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Configure datasources and connection pooling</li>
+                    <li>Understand JPA and Hibernate basics</li>
+                    <li>Use Spring Data JPA for data access</li>
+                    <li>Define custom queries with Spring Data</li>
+                    <li>Use JPA Specifications for dynamic queries</li>
+                    <li>Implement optimistic locking and transactions</li>
+                </ul>
+            </section>
+
+            <!-- Section 1: Database Configuration -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>Database Configuration</h3>
+                </section>
+
+                <section>
+                    <h3>Spring Boot Auto-Configuration Magic</h3>
+                    <p>Spring Boot automatically configures:</p>
+                    <ul>
+                        <li><strong>DataSource</strong> based on classpath dependencies</li>
+                        <li><strong>JPA/Hibernate</strong> with sensible defaults</li>
+                        <li><strong>Connection pooling</strong> (HikariCP by default)</li>
+                    </ul>
+                    <p><em>Just add a dependency and configure properties!</em></p>
+                </section>
+
+                <section>
+                    <h3>Adding Database Support</h3>
+                    <pre><code class="xml" data-trim>
+&lt;!-- Spring Data JPA --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- HSQLDB for development --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.hsqldb&lt;/groupId&gt;
+    &lt;artifactId&gt;hsqldb&lt;/artifactId&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+
+&lt;!-- PostgreSQL for production --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>DataSource Configuration</h3>
+                    <pre><code class="properties" data-trim>
+# HSQLDB In-Memory Database (Development)
+spring.datasource.url=jdbc:hsqldb:mem:testdb
+spring.datasource.driver-class-name=org.hsqldb.jdbc.JDBCDriver
+spring.datasource.username=sa
+spring.datasource.password=
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+# PostgreSQL (Production)
+spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
+spring.datasource.username=postgres
+spring.datasource.password=secret
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Connection Pooling with HikariCP</h3>
+                    <p>Spring Boot uses HikariCP by default (fastest pool)</p>
+                    <pre><code class="properties" data-trim>
+# Pool configuration
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.idle-timeout=300000
+spring.datasource.hikari.connection-timeout=20000
+spring.datasource.hikari.max-lifetime=1200000
+
+# Connection test
+spring.datasource.hikari.connection-test-query=SELECT 1
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Connection Pool Visualization</h3>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|                   HikariCP Pool                           |
+|  +--------+ +--------+ +--------+ +--------+             |
+|  |  Conn  | |  Conn  | |  Conn  | |  Conn  | ...         |
+|  |  IDLE  | |  BUSY  | |  IDLE  | |  IDLE  |             |
+|  +--------+ +--------+ +--------+ +--------+             |
+|                                                          |
+|  minimum-idle: 5    maximum-pool-size: 10                |
++----------------------------------------------------------+
+                          |
+                          v
++----------------------------------------------------------+
+|                      Database                             |
+|         PostgreSQL / MySQL / HSQLDB                       |
++----------------------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Environment-Specific Configuration</h3>
+                    <pre><code class="properties" data-trim>
+# application.properties (defaults)
+spring.jpa.hibernate.ddl-auto=none
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+# application-dev.properties
+spring.datasource.url=jdbc:hsqldb:mem:devdb
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=true
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+# application-prod.properties
+spring.datasource.url=jdbc:postgresql://prod-server:5432/mydb
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 2: JPA Fundamentals -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>JPA Fundamentals</h3>
+                </section>
+
+                <section>
+                    <h3>What is JPA?</h3>
+                    <p><strong>Java Persistence API</strong></p>
+                    <ul>
+                        <li>Standard specification for ORM in Java</li>
+                        <li>Defines how to map Java objects to database tables</li>
+                        <li>Abstracts database interactions</li>
+                    </ul>
+                    <p><strong>Implementations:</strong></p>
+                    <ul>
+                        <li>Hibernate (most popular, Spring Boot default)</li>
+                        <li>EclipseLink</li>
+                        <li>OpenJPA</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>JPA Architecture</h3>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|                    Your Application                       |
+|                         |                                 |
+|                         v                                 |
+|            +------------------------+                     |
+|            |    EntityManager API    |                    |
+|            +------------------------+                     |
+|                         |                                 |
+|                         v                                 |
+|            +------------------------+                     |
+|            | JPA Provider (Hibernate)|                    |
+|            +------------------------+                     |
+|                         |                                 |
+|                         v                                 |
+|            +------------------------+                     |
+|            |         JDBC           |                     |
+|            +------------------------+                     |
++----------------------------------------------------------+
+                          |
+                          v
+                    +----------+
+                    | Database |
+                    +----------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Entity Mapping</h3>
+                    <pre><code class="java" data-trim>
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    // getters and setters
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Key JPA Annotations</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Annotation</th><th>Purpose</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>@Entity</code></td><td>Marks class as JPA entity</td></tr>
+                            <tr><td><code>@Table</code></td><td>Specifies table name</td></tr>
+                            <tr><td><code>@Id</code></td><td>Marks primary key field</td></tr>
+                            <tr><td><code>@GeneratedValue</code></td><td>Auto-generation strategy</td></tr>
+                            <tr><td><code>@Column</code></td><td>Column customization</td></tr>
+                            <tr><td><code>@Transient</code></td><td>Exclude from persistence</td></tr>
+                            <tr><td><code>@Temporal</code></td><td>Date/time handling</td></tr>
+                            <tr><td><code>@Enumerated</code></td><td>Enum persistence strategy</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Primary Key Generation Strategies</h3>
+                    <pre><code class="java" data-trim>
+// Database auto-increment (recommended)
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+
+// Database sequence
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE,
+                generator = "user_seq")
+@SequenceGenerator(name = "user_seq",
+                   sequenceName = "user_sequence",
+                   allocationSize = 1)
+private Long id;
+
+// UUID
+@Id
+@GeneratedValue(strategy = GenerationType.UUID)
+private UUID id;
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Relationship Mappings</h3>
+                    <pre><code class="java" data-trim>
+@Entity
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // Many orders belong to one user
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    // One order has many items
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List&lt;OrderItem&gt; items = new ArrayList&lt;&gt;();
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Relationship Types</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Annotation</th><th>Relationship</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>@OneToOne</code></td><td>User &lt;---&gt; Profile</td></tr>
+                            <tr><td><code>@OneToMany</code></td><td>User &lt;---&gt; Orders (many)</td></tr>
+                            <tr><td><code>@ManyToOne</code></td><td>Order ---&gt; User</td></tr>
+                            <tr><td><code>@ManyToMany</code></td><td>User &lt;---&gt; Roles (many)</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Fetch Types</h3>
+                    <pre><code class="java" data-trim>
+// LAZY - Load on demand (recommended for collections)
+@OneToMany(fetch = FetchType.LAZY)
+private List&lt;Order&gt; orders;
+
+// EAGER - Load immediately (use sparingly)
+@ManyToOne(fetch = FetchType.EAGER)
+private User user;
+                    </code></pre>
+                    <p><strong>Default fetch types:</strong></p>
+                    <ul>
+                        <li><code>@OneToMany</code> / <code>@ManyToMany</code> - LAZY</li>
+                        <li><code>@ManyToOne</code> / <code>@OneToOne</code> - EAGER</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Cascade Types</h3>
+                    <pre><code class="java" data-trim>
+@OneToMany(cascade = CascadeType.ALL)
+private List&lt;OrderItem&gt; items;
+
+// Individual cascade operations
+@OneToMany(cascade = {
+    CascadeType.PERSIST,  // Save child when parent is saved
+    CascadeType.MERGE,    // Update child when parent is updated
+    CascadeType.REMOVE    // Delete child when parent is deleted
+})
+private List&lt;OrderItem&gt; items;
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 3: Spring Data JPA -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>Spring Data JPA</h3>
+                </section>
+
+                <section>
+                    <h3>What is Spring Data JPA?</h3>
+                    <ul>
+                        <li>Simplifies data access layer implementation</li>
+                        <li>Reduces boilerplate code significantly</li>
+                        <li>Provides repository abstraction</li>
+                        <li>Automatic query generation from method names</li>
+                    </ul>
+                    <pre><code data-trim>
++---------------------------------------------------------+
+|                  Traditional Approach                    |
+|    EntityManager -> JPQL -> Manual Implementation       |
++---------------------------------------------------------+
+|                 Spring Data JPA                          |
+|    Interface -> Auto Implementation -> Queries          |
++---------------------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Repository Hierarchy</h3>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|              Repository&lt;T, ID&gt;                            |
+|                     |                                     |
+|                     v                                     |
+|           CrudRepository&lt;T, ID&gt;                           |
+|  save(), findById(), delete(), count(), existsById()     |
+|                     |                                     |
+|                     v                                     |
+|       PagingAndSortingRepository&lt;T, ID&gt;                   |
+|  findAll(Pageable), findAll(Sort)                        |
+|                     |                                     |
+|                     v                                     |
+|           JpaRepository&lt;T, ID&gt;                            |
+|  flush(), saveAndFlush(), deleteInBatch()                |
++----------------------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Creating a Repository</h3>
+                    <pre><code class="java" data-trim>
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+    private String email;
+    // getters, setters
+}
+
+// That's all you need!
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+}
+                    </code></pre>
+                    <p>Spring Data automatically implements:</p>
+                    <ul>
+                        <li><code>save(User user)</code></li>
+                        <li><code>findById(Long id)</code></li>
+                        <li><code>findAll()</code></li>
+                        <li><code>delete(User user)</code></li>
+                        <li><code>count()</code></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Using the Repository</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public Optional&lt;User&gt; findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public List&lt;User&gt; findAll() {
+        return userRepository.findAll();
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>CrudRepository Methods</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>save(S entity)</code></td><td>Save entity (insert or update)</td></tr>
+                            <tr><td><code>saveAll(Iterable&lt;S&gt;)</code></td><td>Save multiple entities</td></tr>
+                            <tr><td><code>findById(ID id)</code></td><td>Find by primary key</td></tr>
+                            <tr><td><code>existsById(ID id)</code></td><td>Check if exists</td></tr>
+                            <tr><td><code>findAll()</code></td><td>Get all entities</td></tr>
+                            <tr><td><code>count()</code></td><td>Count all entities</td></tr>
+                            <tr><td><code>deleteById(ID id)</code></td><td>Delete by ID</td></tr>
+                            <tr><td><code>deleteAll()</code></td><td>Delete all entities</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>JpaRepository Additional Methods</h3>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+}
+
+// Additional methods available:
+userRepository.flush();                    // Sync with database
+userRepository.saveAndFlush(user);        // Save and flush
+userRepository.deleteAllInBatch();        // Batch delete (faster)
+userRepository.getById(id);               // Get reference (lazy)
+userRepository.findAll(Sort.by("name"));  // Sorted results
+userRepository.findAll(PageRequest.of(0, 10)); // Paginated
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 4: Query Methods -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>Query Methods</h3>
+                </section>
+
+                <section>
+                    <h3>Derived Query Methods</h3>
+                    <p>Spring Data generates queries from method names!</p>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    // SELECT * FROM users WHERE username = ?
+    User findByUsername(String username);
+
+    // SELECT * FROM users WHERE email = ?
+    Optional&lt;User&gt; findByEmail(String email);
+
+    // SELECT * FROM users WHERE active = true
+    List&lt;User&gt; findByActiveTrue();
+
+    // SELECT * FROM users WHERE age > ?
+    List&lt;User&gt; findByAgeGreaterThan(int age);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Query Method Keywords</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Keyword</th><th>Sample</th><th>JPQL Snippet</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>And</code></td><td><code>findByNameAndAge</code></td><td><code>WHERE name = ? AND age = ?</code></td></tr>
+                            <tr><td><code>Or</code></td><td><code>findByNameOrAge</code></td><td><code>WHERE name = ? OR age = ?</code></td></tr>
+                            <tr><td><code>Between</code></td><td><code>findByAgeBetween</code></td><td><code>WHERE age BETWEEN ? AND ?</code></td></tr>
+                            <tr><td><code>LessThan</code></td><td><code>findByAgeLessThan</code></td><td><code>WHERE age &lt; ?</code></td></tr>
+                            <tr><td><code>Like</code></td><td><code>findByNameLike</code></td><td><code>WHERE name LIKE ?</code></td></tr>
+                            <tr><td><code>Containing</code></td><td><code>findByNameContaining</code></td><td><code>WHERE name LIKE %?%</code></td></tr>
+                            <tr><td><code>OrderBy</code></td><td><code>findByAgeOrderByName</code></td><td><code>ORDER BY name</code></td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Complex Query Methods</h3>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    // Multiple conditions
+    List&lt;User&gt; findByFirstNameAndLastNameAndAgeGreaterThan(
+        String firstName, String lastName, int age);
+
+    // Ordering
+    List&lt;User&gt; findByDepartmentOrderByLastNameAsc(String department);
+
+    // Limiting results
+    User findFirstByOrderByCreatedAtDesc();
+    List&lt;User&gt; findTop10ByOrderByScoreDesc();
+
+    // Distinct
+    List&lt;User&gt; findDistinctByLastName(String lastName);
+
+    // Counting
+    long countByStatus(String status);
+
+    // Existence
+    boolean existsByEmail(String email);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>@Query Annotation</h3>
+                    <p>For complex queries, use JPQL:</p>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    @Query("SELECT u FROM User u WHERE u.email LIKE %:domain")
+    List&lt;User&gt; findByEmailDomain(@Param("domain") String domain);
+
+    @Query("SELECT u FROM User u WHERE u.status = :status " +
+           "AND u.createdAt > :date ORDER BY u.createdAt DESC")
+    List&lt;User&gt; findRecentActiveUsers(
+        @Param("status") String status,
+        @Param("date") LocalDateTime date);
+
+    @Query("SELECT u FROM User u JOIN u.orders o " +
+           "WHERE o.total > :minTotal")
+    List&lt;User&gt; findUsersWithLargeOrders(@Param("minTotal") BigDecimal minTotal);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Native Queries</h3>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    @Query(value = "SELECT * FROM users WHERE YEAR(created_at) = :year",
+           nativeQuery = true)
+    List&lt;User&gt; findUsersCreatedInYear(@Param("year") int year);
+
+    @Query(value = """
+        SELECT u.*, COUNT(o.id) as order_count
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        GROUP BY u.id
+        HAVING COUNT(o.id) > :minOrders
+        """,
+        nativeQuery = true)
+    List&lt;User&gt; findActiveCustomers(@Param("minOrders") int minOrders);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Modifying Queries</h3>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    @Modifying
+    @Query("UPDATE User u SET u.status = :status WHERE u.id = :id")
+    int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    @Modifying
+    @Query("DELETE FROM User u WHERE u.lastLoginAt < :date")
+    int deleteInactiveUsers(@Param("date") LocalDateTime date);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.emailVerified = true WHERE u.id = :id")
+    void verifyEmail(@Param("id") Long id);
+}
+                    </code></pre>
+                    <p><strong>Note:</strong> <code>@Modifying</code> queries require <code>@Transactional</code></p>
+                </section>
+
+                <section>
+                    <h3>Pagination and Sorting</h3>
+                    <pre><code class="java" data-trim>
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    // Pagination
+    Page&lt;User&gt; findByStatus(String status, Pageable pageable);
+
+    // Sorting
+    List&lt;User&gt; findByDepartment(String dept, Sort sort);
+
+    // Both
+    Page&lt;User&gt; findByActiveTrue(Pageable pageable);
+}
+
+// Usage
+Page&lt;User&gt; page = userRepository.findByStatus("ACTIVE",
+    PageRequest.of(0, 20, Sort.by("lastName").ascending()));
+
+List&lt;User&gt; users = userRepository.findByDepartment("IT",
+    Sort.by(Sort.Order.asc("lastName"), Sort.Order.desc("firstName")));
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Page Object</h3>
+                    <pre><code class="java" data-trim>
+Page&lt;User&gt; page = userRepository.findAll(PageRequest.of(0, 10));
+
+page.getContent();        // List of items on current page
+page.getTotalElements();  // Total items across all pages
+page.getTotalPages();     // Total number of pages
+page.getNumber();         // Current page number (0-indexed)
+page.getSize();           // Page size
+page.hasNext();           // Has next page?
+page.hasPrevious();       // Has previous page?
+page.isFirst();           // Is first page?
+page.isLast();            // Is last page?
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: JPA Configuration -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>JPA Configuration</h3>
+                </section>
+
+                <section>
+                    <h3>Hibernate DDL Auto</h3>
+                    <pre><code class="properties" data-trim>
+# DDL strategies
+spring.jpa.hibernate.ddl-auto=none      # Do nothing (production)
+spring.jpa.hibernate.ddl-auto=validate  # Validate schema matches
+spring.jpa.hibernate.ddl-auto=update    # Update schema (dev)
+spring.jpa.hibernate.ddl-auto=create    # Create fresh on startup
+spring.jpa.hibernate.ddl-auto=create-drop # Create and drop
+                    </code></pre>
+                    <p><strong>Recommendations:</strong></p>
+                    <ul>
+                        <li><strong>Production:</strong> <code>none</code> or <code>validate</code></li>
+                        <li><strong>Development:</strong> <code>update</code> or <code>create-drop</code></li>
+                        <li>Use migration tools (Flyway/Liquibase) for production</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Show SQL</h3>
+                    <pre><code class="properties" data-trim>
+# Show SQL statements
+spring.jpa.show-sql=true
+
+# Format SQL for readability
+spring.jpa.properties.hibernate.format_sql=true
+
+# Show parameter values
+logging.level.org.hibernate.orm.jdbc.bind=TRACE
+                    </code></pre>
+                    <pre><code class="sql" data-trim>
+Hibernate:
+    select
+        u.id,
+        u.username,
+        u.email
+    from
+        users u
+    where
+        u.username = ?
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Entity Auditing</h3>
+                    <pre><code class="java" data-trim>
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String username;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @CreatedBy
+    @Column(updatable = false)
+    private String createdBy;
+
+    @LastModifiedBy
+    private String updatedBy;
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Enable Auditing</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+@EnableJpaAuditing
+public class JpaConfig {
+
+    @Bean
+    public AuditorAware&lt;String&gt; auditorProvider() {
+        return () -> {
+            // Get current user from security context
+            return Optional.ofNullable(
+                SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getName()
+            );
+        };
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Common Pitfalls</h3>
+                    <p><strong>N+1 Problem:</strong></p>
+                    <pre><code class="java" data-trim>
+// BAD - Causes N+1 queries
+List&lt;User&gt; users = userRepository.findAll();
+users.forEach(u -> System.out.println(u.getOrders().size()));
+
+// GOOD - Use JOIN FETCH
+@Query("SELECT u FROM User u LEFT JOIN FETCH u.orders")
+List&lt;User&gt; findAllWithOrders();
+                    </code></pre>
+                    <p><strong>LazyInitializationException:</strong></p>
+                    <pre><code class="java" data-trim>
+// BAD - Session closed before lazy load
+User user = userRepository.findById(1L).get();
+// ... session closed ...
+user.getOrders(); // LazyInitializationException!
+
+// GOOD - Use @Transactional or fetch eagerly
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 6: Advanced JPA Features -->
+            <section>
+                <section>
+                    <h2>Section 6</h2>
+                    <h3>Advanced JPA Features</h3>
+                </section>
+
+                <section>
+                    <h3>Entity Lifecycle Callbacks</h3>
+                    <p>Execute code at specific points in entity lifecycle:</p>
+                    <pre><code class="java" data-trim>
+@Entity
+public class Task {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Lifecycle Callback Annotations</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Annotation</th><th>When Called</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>@PrePersist</code></td><td>Before INSERT</td></tr>
+                            <tr><td><code>@PostPersist</code></td><td>After INSERT</td></tr>
+                            <tr><td><code>@PreUpdate</code></td><td>Before UPDATE</td></tr>
+                            <tr><td><code>@PostUpdate</code></td><td>After UPDATE</td></tr>
+                            <tr><td><code>@PreRemove</code></td><td>Before DELETE</td></tr>
+                            <tr><td><code>@PostRemove</code></td><td>After DELETE</td></tr>
+                            <tr><td><code>@PostLoad</code></td><td>After SELECT</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Optimistic Locking with @Version</h3>
+                    <p>Prevent lost updates in concurrent modifications:</p>
+                    <pre><code class="java" data-trim>
+@Entity
+public class Task {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+    @Version
+    private Long version;  // Automatically incremented on each update
+}
+                    </code></pre>
+                    <p>If two users edit the same record:</p>
+                    <ul>
+                        <li>First save succeeds, version goes from 0 → 1</li>
+                        <li>Second save fails with <code>OptimisticLockException</code></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>How @Version Works</h3>
+                    <pre><code data-trim>
+User A reads Task (version = 0)
+User B reads Task (version = 0)
+
+User A updates Task
+  → UPDATE tasks SET title=?, version=1 WHERE id=? AND version=0
+  → Success! (1 row updated)
+
+User B tries to update Task
+  → UPDATE tasks SET title=?, version=1 WHERE id=? AND version=0
+  → Fails! (0 rows updated - version is now 1)
+  → OptimisticLockException thrown
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Handling Optimistic Lock Failures</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskService {
+
+    public Task updateTask(Long id, TaskUpdateDto dto) {
+        try {
+            Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+            task.setTitle(dto.getTitle());
+            return taskRepository.save(task);
+        } catch (OptimisticLockException e) {
+            throw new ConflictException(
+                "Task was modified by another user. Please refresh and try again."
+            );
+        }
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>JPA Specifications</h3>
+                    <p>Build dynamic queries programmatically:</p>
+                    <pre><code class="java" data-trim>
+public interface TaskRepository extends JpaRepository&lt;Task, Long&gt;,
+                                        JpaSpecificationExecutor&lt;Task&gt; {
+}
+
+// Specification defines a single predicate
+public class TaskSpecifications {
+
+    public static Specification&lt;Task&gt; hasStatus(TaskStatus status) {
+        return (root, query, cb) ->
+            cb.equal(root.get("status"), status);
+    }
+
+    public static Specification&lt;Task&gt; titleContains(String keyword) {
+        return (root, query, cb) ->
+            cb.like(cb.lower(root.get("title")),
+                    "%" + keyword.toLowerCase() + "%");
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Combining Specifications</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskService {
+
+    public List&lt;Task&gt; searchTasks(String keyword, TaskStatus status,
+                                   LocalDate dueAfter) {
+        Specification&lt;Task&gt; spec = Specification.where(null);
+
+        if (keyword != null) {
+            spec = spec.and(TaskSpecifications.titleContains(keyword));
+        }
+        if (status != null) {
+            spec = spec.and(TaskSpecifications.hasStatus(status));
+        }
+        if (dueAfter != null) {
+            spec = spec.and(TaskSpecifications.dueDateAfter(dueAfter));
+        }
+
+        return taskRepository.findAll(spec);
+    }
+}
+                    </code></pre>
+                    <p>Specifications can be combined with <code>and()</code>, <code>or()</code>, <code>not()</code></p>
+                </section>
+
+                <section>
+                    <h3>Specification Building Blocks</h3>
+                    <pre><code class="java" data-trim>
+public class TaskSpecifications {
+
+    public static Specification&lt;Task&gt; dueDateAfter(LocalDate date) {
+        return (root, query, cb) ->
+            cb.greaterThan(root.get("dueDate"), date);
+    }
+
+    public static Specification&lt;Task&gt; priorityIn(List&lt;Priority&gt; priorities) {
+        return (root, query, cb) ->
+            root.get("priority").in(priorities);
+    }
+
+    public static Specification&lt;Task&gt; createdBetween(
+            LocalDateTime start, LocalDateTime end) {
+        return (root, query, cb) ->
+            cb.between(root.get("createdAt"), start, end);
+    }
+
+    public static Specification&lt;Task&gt; assignedTo(Long userId) {
+        return (root, query, cb) ->
+            cb.equal(root.get("assignee").get("id"), userId);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Transaction Management</h3>
+                    <p><code>@Transactional</code> ensures ACID properties:</p>
+                    <pre><code class="java" data-trim>
+@Service
+public class OrderService {
+
+    @Transactional
+    public Order createOrder(OrderRequest request) {
+        // All operations are in a single transaction
+        Order order = new Order();
+        order.setCustomer(customerRepository.findById(request.getCustomerId())
+            .orElseThrow());
+
+        for (OrderItemRequest item : request.getItems()) {
+            Product product = productRepository.findById(item.getProductId())
+                .orElseThrow();
+            product.decrementStock(item.getQuantity());  // Update stock
+            order.addItem(product, item.getQuantity());
+        }
+
+        return orderRepository.save(order);
+        // If any step fails, ALL changes are rolled back
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Transaction Propagation</h3>
+                    <table style="font-size: 0.65em;">
+                        <thead>
+                            <tr><th>Propagation</th><th>Behavior</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>REQUIRED</code></td><td>Join existing or create new (default)</td></tr>
+                            <tr><td><code>REQUIRES_NEW</code></td><td>Always create new, suspend existing</td></tr>
+                            <tr><td><code>MANDATORY</code></td><td>Must have existing, throw if none</td></tr>
+                            <tr><td><code>SUPPORTS</code></td><td>Use if exists, non-transactional if not</td></tr>
+                            <tr><td><code>NOT_SUPPORTED</code></td><td>Execute non-transactionally, suspend if exists</td></tr>
+                            <tr><td><code>NEVER</code></td><td>Throw if transaction exists</td></tr>
+                            <tr><td><code>NESTED</code></td><td>Create nested transaction (savepoint)</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Propagation Examples</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class AuditService {
+
+    // Always log, even if main transaction fails
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void logAction(String action, String user) {
+        auditLogRepository.save(new AuditLog(action, user));
+    }
+}
+
+@Service
+public class OrderService {
+
+    @Transactional
+    public void processOrder(Order order) {
+        orderRepository.save(order);
+        auditService.logAction("ORDER_CREATED", currentUser);
+        // If this fails, order is rolled back
+        // But audit log is NOT rolled back (separate transaction)
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Transaction Isolation Levels</h3>
+                    <pre><code class="java" data-trim>
+@Transactional(isolation = Isolation.READ_COMMITTED)
+public void updateInventory() { ... }
+                    </code></pre>
+                    <table style="font-size: 0.6em;">
+                        <thead>
+                            <tr><th>Level</th><th>Dirty Read</th><th>Non-Repeatable</th><th>Phantom</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>READ_UNCOMMITTED</code></td><td>Possible</td><td>Possible</td><td>Possible</td></tr>
+                            <tr><td><code>READ_COMMITTED</code></td><td>Prevented</td><td>Possible</td><td>Possible</td></tr>
+                            <tr><td><code>REPEATABLE_READ</code></td><td>Prevented</td><td>Prevented</td><td>Possible</td></tr>
+                            <tr><td><code>SERIALIZABLE</code></td><td>Prevented</td><td>Prevented</td><td>Prevented</td></tr>
+                        </tbody>
+                    </table>
+                    <p><small>Higher isolation = more consistency, less concurrency</small></p>
+                </section>
+
+                <section>
+                    <h3>Transaction Rollback Rules</h3>
+                    <pre><code class="java" data-trim>
+// Rollback on specific exceptions
+@Transactional(rollbackFor = BusinessException.class)
+public void processPayment() { ... }
+
+// Don't rollback on specific exceptions
+@Transactional(noRollbackFor = NotificationException.class)
+public void processOrder() {
+    saveOrder();
+    sendNotification();  // Failure won't rollback order
+}
+
+// Rollback on all exceptions (including checked)
+@Transactional(rollbackFor = Exception.class)
+public void criticalOperation() { ... }
+                    </code></pre>
+                    <p><strong>Default:</strong> Rollback on RuntimeException and Error only</p>
+                </section>
+
+                <section>
+                    <h3>@Transactional Best Practices</h3>
+                    <ul>
+                        <li>Place on service layer, not repository</li>
+                        <li>Keep transactions short</li>
+                        <li>Avoid external calls inside transactions</li>
+                        <li>Use read-only for queries</li>
+                    </ul>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskService {
+
+    @Transactional(readOnly = true)
+    public List&lt;Task&gt; getAllTasks() {
+        return taskRepository.findAll();
+    }
+
+    @Transactional(timeout = 30)  // Fail after 30 seconds
+    public Task createTask(Task task) {
+        return taskRepository.save(task);
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <section>
+                    <h2>Module 3 Summary</h2>
+                    <h3>Key Takeaways</h3>
+                    <ol>
+                        <li><strong>Auto-configuration</strong> makes database setup easy</li>
+                        <li><strong>HikariCP</strong> is the default connection pool</li>
+                        <li><strong>JPA entities</strong> map Java objects to tables</li>
+                        <li><strong>Spring Data repositories</strong> eliminate boilerplate</li>
+                        <li><strong>Query methods</strong> generate queries from names</li>
+                        <li><strong>Specifications</strong> enable dynamic queries</li>
+                        <li><strong>@Version</strong> provides optimistic locking</li>
+                        <li><strong>@Transactional</strong> manages ACID properties</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Lab Exercises</h2>
+                    <h3>Lab 4: Database Integration</h3>
+                    <p>You will enhance the Task API to:</p>
+                    <ul>
+                        <li>Persist tasks in a database</li>
+                        <li>Use Spring Data JPA repositories</li>
+                        <li>Implement pagination and sorting</li>
+                        <li>Create custom queries</li>
+                    </ul>
+                    <p><strong>Time:</strong> 60-75 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Lab Exercises</h2>
+                    <h3>Lab 4b: Advanced Queries & Transactions</h3>
+                    <p>You will implement:</p>
+                    <ul>
+                        <li>JPQL and native SQL queries</li>
+                        <li>JPA Specifications for dynamic search</li>
+                        <li>Transaction propagation patterns</li>
+                        <li>Optimistic locking with @Version</li>
+                        <li>JPA Auditing for tracking changes</li>
+                    </ul>
+                    <p><strong>Time:</strong> 45-60 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <h3>Next Module: Building RESTful Web Services</h3>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>

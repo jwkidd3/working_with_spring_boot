@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6: Service Orchestration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/night.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/monokai.min.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { width: 100%; }
+        .reveal pre code { max-height: 500px; }
+        .reveal table { font-size: 0.7em; }
+        .reveal ul, .reveal ol { font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h1>Module 6</h1>
+                <h2>Service Orchestration</h2>
+                <p>Day 3 Afternoon - ~3 hours</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Module Overview</h2>
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Understand microservices communication patterns</li>
+                    <li>Use Spring Events for in-process messaging</li>
+                    <li>Implement asynchronous event processing</li>
+                    <li>Use REST clients for service communication</li>
+                    <li>Understand production messaging options</li>
+                </ul>
+            </section>
+
+            <!-- Section 1: Microservices Communication -->
+            <section>
+                <section>
+                    <h2>Section 1</h2>
+                    <h3>Microservices Communication</h3>
+                </section>
+
+                <section>
+                    <h3>Communication Patterns</h3>
+                    <pre><code data-trim>
++---------------------------------------------------------+
+|            Service Communication Patterns                |
++-------------------+-------------------------------------+
+|   Synchronous     |  REST, gRPC, GraphQL                |
+|   Asynchronous    |  Message Queues, Event Streaming    |
++-------------------+-------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Synchronous vs Asynchronous</h3>
+                    <p><strong>Synchronous (REST/HTTP):</strong></p>
+                    <pre><code data-trim>
++-----------+  HTTP Request  +-----------+
+| Service A |--------------->| Service B |
+|           |<---------------|           |
++-----------+  HTTP Response +-----------+
+       |
+       +-- Service A waits for response
+                    </code></pre>
+                    <p><strong>Asynchronous (Messaging):</strong></p>
+                    <pre><code data-trim>
++-----------+  Publish   +---------+  Subscribe  +-----------+
+| Service A |----------->|  Queue  |------------>| Service B |
++-----------+            +---------+             +-----------+
+       |
+       +-- Service A continues immediately
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>When to Use Each Pattern</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Pattern</th><th>Use When</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Synchronous</strong></td><td>Need immediate response</td></tr>
+                            <tr><td></td><td>Simple request-response</td></tr>
+                            <tr><td></td><td>Strong consistency required</td></tr>
+                            <tr><td><strong>Asynchronous</strong></td><td>Fire-and-forget operations</td></tr>
+                            <tr><td></td><td>Long-running processes</td></tr>
+                            <tr><td></td><td>Decoupling required</td></tr>
+                            <tr><td></td><td>High throughput needs</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+            <!-- Section 2: REST Communication -->
+            <section>
+                <section>
+                    <h2>Section 2</h2>
+                    <h3>REST Communication</h3>
+                </section>
+
+                <section>
+                    <h3>RestTemplate (Traditional)</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class OrderService {
+
+    private final RestTemplate restTemplate;
+
+    public OrderService(RestTemplateBuilder builder) {
+        this.restTemplate = builder.build();
+    }
+
+    public Product getProduct(Long productId) {
+        return restTemplate.getForObject(
+            "http://product-service/api/products/{id}",
+            Product.class,
+            productId
+        );
+    }
+
+    public void createOrder(Order order) {
+        restTemplate.postForObject(
+            "http://order-service/api/orders",
+            order,
+            Order.class
+        );
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>RestTemplate Configuration</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+public class RestConfig {
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+            .setConnectTimeout(Duration.ofSeconds(5))
+            .setReadTimeout(Duration.ofSeconds(10))
+            .build();
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>WebClient (Reactive/Modern)</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class ProductService {
+
+    private final WebClient webClient;
+
+    public ProductService(WebClient.Builder builder) {
+        this.webClient = builder
+            .baseUrl("http://product-service")
+            .build();
+    }
+
+    public Mono&lt;Product&gt; getProduct(Long id) {
+        return webClient.get()
+            .uri("/api/products/{id}", id)
+            .retrieve()
+            .bodyToMono(Product.class);
+    }
+
+    public Flux&lt;Product&gt; getAllProducts() {
+        return webClient.get()
+            .uri("/api/products")
+            .retrieve()
+            .bodyToFlux(Product.class);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>WebClient - Blocking Style</h3>
+                    <p>For non-reactive applications:</p>
+                    <pre><code class="java" data-trim>
+@Service
+public class ProductService {
+
+    private final WebClient webClient;
+
+    public Product getProduct(Long id) {
+        return webClient.get()
+            .uri("/api/products/{id}", id)
+            .retrieve()
+            .bodyToMono(Product.class)
+            .block();  // Blocks until response
+    }
+
+    public List&lt;Product&gt; getAllProducts() {
+        return webClient.get()
+            .uri("/api/products")
+            .retrieve()
+            .bodyToFlux(Product.class)
+            .collectList()
+            .block();
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Error Handling with WebClient</h3>
+                    <pre><code class="java" data-trim>
+public Product getProduct(Long id) {
+    return webClient.get()
+        .uri("/api/products/{id}", id)
+        .retrieve()
+        .onStatus(HttpStatusCode::is4xxClientError, response ->
+            Mono.error(new ProductNotFoundException(id)))
+        .onStatus(HttpStatusCode::is5xxServerError, response ->
+            Mono.error(new ServiceUnavailableException("Product service down")))
+        .bodyToMono(Product.class)
+        .block();
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>OpenFeign Client</h3>
+                    <p>Declarative REST client:</p>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@EnableFeignClients
+@SpringBootApplication
+public class Application { }
+
+@FeignClient(name = "product-service", url = "http://localhost:8081")
+public interface ProductClient {
+
+    @GetMapping("/api/products/{id}")
+    Product getProduct(@PathVariable Long id);
+
+    @GetMapping("/api/products")
+    List&lt;Product&gt; getAllProducts();
+
+    @PostMapping("/api/products")
+    Product createProduct(@RequestBody CreateProductRequest request);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Using Feign Client</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class OrderService {
+
+    private final ProductClient productClient;
+
+    public OrderService(ProductClient productClient) {
+        this.productClient = productClient;
+    }
+
+    public Order createOrder(CreateOrderRequest request) {
+        // Call product service
+        Product product = productClient.getProduct(request.getProductId());
+
+        // Validate availability
+        if (product.getQuantity() < request.getQuantity()) {
+            throw new InsufficientStockException();
+        }
+
+        // Create order
+        return orderRepository.save(new Order(product, request.getQuantity()));
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 3: Spring Application Events -->
+            <section>
+                <section>
+                    <h2>Section 3</h2>
+                    <h3>Spring Application Events</h3>
+                </section>
+
+                <section>
+                    <h3>Event-Driven Architecture</h3>
+                    <p>Spring provides built-in event support for in-process communication:</p>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|                    Spring Application                     |
+|                                                          |
+|  +------------+    Event    +------------+               |
+|  | Publisher  |------------>| Listener   |               |
+|  | Service    |             | Service    |               |
+|  +------------+             +------------+               |
+|        |                          ^                      |
+|        |  ApplicationEventPublisher                      |
+|        +-------------------------->                      |
++----------------------------------------------------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Why Use Spring Events?</h3>
+                    <ul>
+                        <li><strong>No external dependencies:</strong> Built into Spring</li>
+                        <li><strong>Decoupling:</strong> Publishers don't know about listeners</li>
+                        <li><strong>Simplicity:</strong> Easy to implement and test</li>
+                        <li><strong>Async support:</strong> Can process events asynchronously</li>
+                        <li><strong>Transaction awareness:</strong> Events can fire after commit</li>
+                    </ul>
+                    <p><em>Perfect for single-application event-driven design</em></p>
+                </section>
+
+                <section>
+                    <h3>Defining Events</h3>
+                    <pre><code class="java" data-trim>
+// Simple event class - just a POJO
+public class TaskCreatedEvent {
+    private final Long taskId;
+    private final String title;
+    private final LocalDateTime createdAt;
+
+    public TaskCreatedEvent(Long taskId, String title) {
+        this.taskId = taskId;
+        this.title = title;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // getters
+}
+
+// Using records (Java 17+)
+public record TaskCompletedEvent(Long taskId, String title, LocalDateTime completedAt) {
+    public TaskCompletedEvent(Long taskId, String title) {
+        this(taskId, title, LocalDateTime.now());
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Publishing Events</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskService {
+
+    private final TaskRepository taskRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    public TaskService(TaskRepository taskRepository,
+                       ApplicationEventPublisher eventPublisher) {
+        this.taskRepository = taskRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    public Task createTask(CreateTaskRequest request) {
+        Task task = new Task(request.getTitle(), request.getDescription());
+        Task saved = taskRepository.save(task);
+
+        // Publish event
+        eventPublisher.publishEvent(
+            new TaskCreatedEvent(saved.getId(), saved.getTitle())
+        );
+
+        return saved;
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Listening to Events</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationService {
+
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
+    @EventListener
+    public void handleTaskCreated(TaskCreatedEvent event) {
+        log.info("Task created: {} - {}", event.getTaskId(), event.getTitle());
+        // Send notification, update analytics, etc.
+    }
+
+    @EventListener
+    public void handleTaskCompleted(TaskCompletedEvent event) {
+        log.info("Task completed: {} at {}", event.taskId(), event.completedAt());
+        // Send completion notification
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Asynchronous Event Processing</h3>
+                    <p>Process events in background threads:</p>
+                    <pre><code class="java" data-trim>
+@Configuration
+@EnableAsync
+public class AsyncConfig {
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("event-");
+        executor.initialize();
+        return executor;
+    }
+}
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationService {
+
+    @Async
+    @EventListener
+    public void handleTaskCreated(TaskCreatedEvent event) {
+        // Runs in separate thread - doesn't block publisher
+        sendEmail(event);
+        updateAnalytics(event);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Transaction-Bound Events</h3>
+                    <p>Only fire events after transaction commits:</p>
+                    <pre><code class="java" data-trim>
+@Service
+public class AuditService {
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleTaskCreated(TaskCreatedEvent event) {
+        // Only executes if transaction commits successfully
+        auditLogRepository.save(new AuditLog("TASK_CREATED", event.getTaskId()));
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+    public void handleTaskCreationFailed(TaskCreatedEvent event) {
+        // Only executes if transaction rolls back
+        log.warn("Task creation failed: {}", event.getTaskId());
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Transaction Phases</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Phase</th><th>When Executed</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>BEFORE_COMMIT</code></td><td>Before transaction commits</td></tr>
+                            <tr><td><code>AFTER_COMMIT</code></td><td>After successful commit (default)</td></tr>
+                            <tr><td><code>AFTER_ROLLBACK</code></td><td>After transaction rollback</td></tr>
+                            <tr><td><code>AFTER_COMPLETION</code></td><td>After commit or rollback</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Multiple Listeners</h3>
+                    <pre><code class="java" data-trim>
+// Multiple services can listen to the same event
+@Service
+public class NotificationService {
+    @EventListener
+    public void onTaskCreated(TaskCreatedEvent event) {
+        sendNotification(event);
+    }
+}
+
+@Service
+public class AnalyticsService {
+    @EventListener
+    public void onTaskCreated(TaskCreatedEvent event) {
+        trackTaskCreation(event);
+    }
+}
+
+@Service
+public class SearchIndexService {
+    @Async
+    @EventListener
+    public void onTaskCreated(TaskCreatedEvent event) {
+        updateSearchIndex(event);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Conditional Event Handling</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class NotificationService {
+
+    // Only handle high priority tasks
+    @EventListener(condition = "#event.priority == 'HIGH'")
+    public void handleUrgentTask(TaskCreatedEvent event) {
+        sendUrgentNotification(event);
+    }
+
+    // Handle specific event types
+    @EventListener
+    public void handleEvent(Object event) {
+        if (event instanceof TaskCreatedEvent created) {
+            handleCreated(created);
+        } else if (event instanceof TaskCompletedEvent completed) {
+            handleCompleted(completed);
+        }
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Ordering Event Listeners</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class ValidationService {
+
+    @EventListener
+    @Order(1)  // Execute first
+    public void validateTask(TaskCreatedEvent event) {
+        // Validation runs before other listeners
+        if (event.getTitle() == null) {
+            throw new InvalidTaskException("Title required");
+        }
+    }
+}
+
+@Service
+public class NotificationService {
+
+    @EventListener
+    @Order(2)  // Execute second
+    public void notifyTask(TaskCreatedEvent event) {
+        // Runs after validation
+        sendNotification(event);
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 4: Message Queues (Production) -->
+            <section>
+                <section>
+                    <h2>Section 4</h2>
+                    <h3>Message Queues (Production)</h3>
+                    <p><em>For distributed systems and production deployments</em></p>
+                </section>
+
+                <section>
+                    <h3>Message Queue Benefits</h3>
+                    <ul>
+                        <li><strong>Decoupling:</strong> Services don't need to know about each other</li>
+                        <li><strong>Resilience:</strong> Messages persist if consumer is down</li>
+                        <li><strong>Scalability:</strong> Multiple consumers can process messages</li>
+                        <li><strong>Load Leveling:</strong> Buffer during traffic spikes</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>RabbitMQ Architecture</h3>
+                    <pre><code data-trim>
++----------+    +----------+    +----------+    +----------+
+| Producer |--->| Exchange |--->|  Queue   |--->| Consumer |
++----------+    +----------+    +----------+    +----------+
+                     |                |
+                     |    Binding     |
+                     +----------------+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Spring AMQP Setup</h3>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-amqp&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <pre><code class="properties" data-trim>
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=guest
+spring.rabbitmq.password=guest
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>RabbitMQ Configuration</h3>
+                    <pre><code class="java" data-trim>
+@Configuration
+public class RabbitMQConfig {
+
+    public static final String QUEUE_NAME = "task-events";
+    public static final String EXCHANGE_NAME = "task-exchange";
+    public static final String ROUTING_KEY = "task.#";
+
+    @Bean
+    public Queue taskQueue() {
+        return new Queue(QUEUE_NAME, true);  // durable
+    }
+
+    @Bean
+    public TopicExchange taskExchange() {
+        return new TopicExchange(EXCHANGE_NAME);
+    }
+
+    @Bean
+    public Binding binding(Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue)
+            .to(exchange)
+            .with(ROUTING_KEY);
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(messageConverter());
+        return template;
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Sending Messages</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskEventPublisher {
+
+    private final RabbitTemplate rabbitTemplate;
+
+    public TaskEventPublisher(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
+
+    public void publishTaskCreated(Task task) {
+        TaskEvent event = new TaskEvent("CREATED", task.getId(), task.getTitle());
+        rabbitTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE_NAME,
+            "task.created",
+            event
+        );
+    }
+
+    public void publishTaskCompleted(Task task) {
+        TaskEvent event = new TaskEvent("COMPLETED", task.getId(), task.getTitle());
+        rabbitTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE_NAME,
+            "task.completed",
+            event
+        );
+    }
+}
+
+public record TaskEvent(String type, Long taskId, String title) {}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Receiving Messages</h3>
+                    <pre><code class="java" data-trim>
+@Service
+public class TaskEventListener {
+
+    private static final Logger log = LoggerFactory.getLogger(TaskEventListener.class);
+
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
+    public void handleTaskEvent(TaskEvent event) {
+        log.info("Received task event: {}", event);
+
+        switch (event.type()) {
+            case "CREATED" -> handleTaskCreated(event);
+            case "COMPLETED" -> handleTaskCompleted(event);
+            default -> log.warn("Unknown event type: {}", event.type());
+        }
+    }
+
+    private void handleTaskCreated(TaskEvent event) {
+        // Send notification, update analytics, etc.
+        log.info("Processing task created: {}", event.taskId());
+    }
+
+    private void handleTaskCompleted(TaskEvent event) {
+        // Update reports, trigger workflows, etc.
+        log.info("Processing task completed: {}", event.taskId());
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Kafka Alternative</h3>
+                    <p>For high-throughput event streaming:</p>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@Service
+public class KafkaTaskPublisher {
+
+    private final KafkaTemplate&lt;String, TaskEvent&gt; kafkaTemplate;
+
+    public void publishTaskEvent(TaskEvent event) {
+        kafkaTemplate.send("task-events", event.taskId().toString(), event);
+    }
+}
+
+@Service
+public class KafkaTaskListener {
+
+    @KafkaListener(topics = "task-events", groupId = "task-service")
+    public void handleTaskEvent(TaskEvent event) {
+        // Process event
+    }
+}
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 5: Building Multi-Service Application -->
+            <section>
+                <section>
+                    <h2>Section 5</h2>
+                    <h3>Building Multi-Service Application</h3>
+                </section>
+
+                <section>
+                    <h3>Sample Architecture</h3>
+                    <pre><code data-trim>
++----------------------------------------------------------+
+|                      API Gateway                          |
+|                    (Port 8080)                            |
++-------------+--------------------------+-----------------+
+              |                          |
+              v                          v
++---------------------+    +---------------------+
+|   Task Service      |    |  Notification       |
+|   (Port 8081)       |    |  Service (8082)     |
+|                     |    |                     |
+|  - CRUD operations  |    |  - Send emails      |
+|  - Task management  |    |  - Push notifications|
++----------+----------+    +---------------------+
+           |                         ^
+           |      Task Events        |
+           +-------------------------+
+                  (RabbitMQ)
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Task Service - Publishing Events</h3>
+                    <pre><code class="java" data-trim>
+@Service
+@Transactional
+public class TaskService {
+
+    private final TaskRepository taskRepository;
+    private final TaskEventPublisher eventPublisher;
+
+    public Task create(CreateTaskRequest request) {
+        Task task = new Task();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+
+        Task saved = taskRepository.save(task);
+
+        // Publish event after successful save
+        eventPublisher.publishTaskCreated(saved);
+
+        return saved;
+    }
+
+    public Task complete(Long id) {
+        Task task = findById(id);
+        task.setStatus(TaskStatus.COMPLETED);
+
+        Task saved = taskRepository.save(task);
+
+        // Publish completion event
+        eventPublisher.publishTaskCompleted(saved);
+
+        return saved;
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Notification Service - Consuming Events</h3>
+                    <pre><code class="java" data-trim>
+@SpringBootApplication
+public class NotificationServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(NotificationServiceApplication.class, args);
+    }
+}
+
+@Service
+public class NotificationService {
+
+    private final EmailService emailService;
+
+    @RabbitListener(queues = "task-events")
+    public void handleTaskEvent(TaskEvent event) {
+        switch (event.type()) {
+            case "CREATED" -> sendTaskCreatedNotification(event);
+            case "COMPLETED" -> sendTaskCompletedNotification(event);
+        }
+    }
+
+    private void sendTaskCreatedNotification(TaskEvent event) {
+        emailService.send(
+            "team@example.com",
+            "New Task Created",
+            "Task '" + event.title() + "' has been created."
+        );
+    }
+
+    private void sendTaskCompletedNotification(TaskEvent event) {
+        emailService.send(
+            "team@example.com",
+            "Task Completed",
+            "Task '" + event.title() + "' has been completed!"
+        );
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Service Discovery (Optional)</h3>
+                    <p>With Spring Cloud:</p>
+                    <pre><code class="yaml" data-trim>
+# application.yml
+spring:
+  application:
+    name: task-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@FeignClient(name = "notification-service")  // Uses service name, not URL
+public interface NotificationClient {
+
+    @PostMapping("/api/notifications")
+    void sendNotification(@RequestBody Notification notification);
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Circuit Breaker Pattern</h3>
+                    <p>Resilience4j for fault tolerance:</p>
+                    <pre><code class="xml" data-trim>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-circuitbreaker-resilience4j&lt;/artifactId&gt;
+&lt;/dependency&gt;
+                    </code></pre>
+                    <pre><code class="java" data-trim>
+@Service
+public class ProductService {
+
+    private final ProductClient productClient;
+
+    @CircuitBreaker(name = "productService", fallbackMethod = "getProductFallback")
+    public Product getProduct(Long id) {
+        return productClient.getProduct(id);
+    }
+
+    public Product getProductFallback(Long id, Exception e) {
+        // Return cached or default product
+        return new Product(id, "Unknown", BigDecimal.ZERO);
+    }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Circuit Breaker States</h3>
+                    <pre><code data-trim>
++---------------------------------------------------------+
+|                  Circuit Breaker                         |
++---------+-----------------+-----------------------------+
+|  CLOSED | Normal operation| Requests pass through       |
++---------+-----------------+-----------------------------+
+|  OPEN   | Failure         | Requests fail immediately   |
+|         | threshold       | (fallback used)             |
+|         | exceeded        |                             |
++---------+-----------------+-----------------------------+
+|HALF_OPEN| Testing         | Limited requests allowed    |
+|         |                 | Success -> CLOSED           |
+|         |                 | Failure -> OPEN             |
++---------+-----------------+-----------------------------+
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Section 6: Best Practices -->
+            <section>
+                <section>
+                    <h2>Section 6</h2>
+                    <h3>Best Practices</h3>
+                </section>
+
+                <section>
+                    <h3>Communication Guidelines</h3>
+                    <ol>
+                        <li><strong>Use async for non-blocking operations</strong></li>
+                        <li><strong>Implement timeouts</strong> for sync calls</li>
+                        <li><strong>Add retry logic</strong> with exponential backoff</li>
+                        <li><strong>Use circuit breakers</strong> to prevent cascade failures</li>
+                        <li><strong>Make services idempotent</strong> for safe retries</li>
+                        <li><strong>Log correlation IDs</strong> across services</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>Message Design</h3>
+                    <pre><code class="java" data-trim>
+// Include correlation ID for tracing
+public record TaskEvent(
+    String eventId,        // Unique event ID
+    String correlationId,  // Request correlation
+    String type,
+    Long taskId,
+    String title,
+    Instant timestamp,
+    Map&lt;String, Object&gt; metadata
+) {}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Distributed Tracing</h3>
+                    <p>With Spring Cloud Sleuth/Micrometer:</p>
+                    <pre><code class="properties" data-trim>
+management.tracing.sampling.probability=1.0
+                    </code></pre>
+                    <p>Log output includes trace IDs:</p>
+                    <pre><code data-trim>
+INFO [task-service,abc123,def456] - Processing task created
+INFO [notification-service,abc123,ghi789] - Sending notification
+                        |      |
+                        |      +-- Span ID
+                        +-- Trace ID (same across services)
+                    </code></pre>
+                </section>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <section>
+                    <h2>Module 6 Summary</h2>
+                    <h3>Key Takeaways</h3>
+                    <ol>
+                        <li><strong>Synchronous</strong> (REST/HTTP) for request-response patterns</li>
+                        <li><strong>Spring Events</strong> for in-process decoupling</li>
+                        <li><strong>@Async + @EventListener</strong> for async processing</li>
+                        <li><strong>@TransactionalEventListener</strong> for transaction-aware events</li>
+                        <li><strong>RabbitMQ/Kafka</strong> for distributed production systems</li>
+                        <li><strong>Circuit breakers</strong> prevent cascade failures</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Lab Exercise</h2>
+                    <h3>Lab 7: Service Orchestration</h3>
+                    <p>You will build:</p>
+                    <ul>
+                        <li>Event-driven Task Service with Spring Events</li>
+                        <li>Notification Service as event listener</li>
+                        <li>Async event processing with @Async</li>
+                        <li>REST communication between services</li>
+                    </ul>
+                    <p><strong>Time:</strong> 60-75 minutes</p>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <h3>Next Module: Additional Topics & Wrap-up</h3>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>
