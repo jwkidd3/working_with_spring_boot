@@ -1,0 +1,12 @@
+com/example/taskapi/dto/ErrorResponse.class
+com/example/taskapi/dto/CreateTaskRequest.class
+com/example/taskapi/model/TaskStatus.class
+com/example/taskapi/TaskApiApplication.class
+com/example/taskapi/controller/TaskController.class
+com/example/taskapi/exception/TaskNotFoundException.class
+com/example/taskapi/service/TaskService.class
+com/example/taskapi/dto/ErrorResponse$FieldError.class
+com/example/taskapi/dto/UpdateTaskRequest.class
+com/example/taskapi/model/TaskPriority.class
+com/example/taskapi/exception/GlobalExceptionHandler.class
+com/example/taskapi/model/Task.class

@@ -18,7 +18,7 @@ public class TaskEvent extends ApplicationEvent {
     private final Long taskId;
     private final String taskTitle;
     private final Long assigneeId;
-    private final LocalDateTime timestamp;
+    private final LocalDateTime eventTime;
 
     public TaskEvent(Object source, EventType eventType, Long taskId, String taskTitle, Long assigneeId) {
         super(source);
@@ -27,7 +27,7 @@ public class TaskEvent extends ApplicationEvent {
         this.taskId = taskId;
         this.taskTitle = taskTitle;
         this.assigneeId = assigneeId;
-        this.timestamp = LocalDateTime.now();
+        this.eventTime = LocalDateTime.now();
     }
 
     // Getters
@@ -51,8 +51,8 @@ public class TaskEvent extends ApplicationEvent {
         return assigneeId;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public LocalDateTime getEventTime() {
+        return eventTime;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class TaskEvent extends ApplicationEvent {
                 ", taskId=" + taskId +
                 ", taskTitle='" + taskTitle + '\'' +
                 ", assigneeId=" + assigneeId +
-                ", timestamp=" + timestamp +
+                ", eventTime=" + eventTime +
                 '}';
     }
 }

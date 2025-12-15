@@ -45,7 +45,7 @@ public class TaskModelAssembler extends RepresentationModelAssemblerSupport<Task
 
         // Collection link - link to all tasks
         taskResponse.add(linkTo(methodOn(TaskController.class)
-                .getAllTasks(null, null))
+                .getAllTasks(0, 10))
                 .withRel("tasks"));
 
         // Conditional links based on task status
@@ -115,7 +115,7 @@ public class TaskModelAssembler extends RepresentationModelAssemblerSupport<Task
 
         // Add self link to the collection
         taskResponses.add(linkTo(methodOn(TaskController.class)
-                .getAllTasks(null, null))
+                .getAllTasks(0, 10))
                 .withSelfRel());
 
         return taskResponses;

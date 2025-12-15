@@ -1,0 +1,5 @@
+com/example/taskapi/TaskApiApplication.class
+com/example/taskapi/entity/Task.class
+com/example/taskapi/repository/TaskRepository.class
+com/example/taskapi/entity/TaskStatus.class
+com/example/taskapi/entity/TaskPriority.class

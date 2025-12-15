@@ -1,0 +1,10 @@
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/controller/TaskController.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/event/TaskEventListener.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/repository/TaskRepository.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/event/TaskEvent.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/entity/TaskStatus.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/event/TaskEventPublisher.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/service/TaskService.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/config/AsyncConfig.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/entity/Task.java
+/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-06-service-orchestration/solution/task-service/src/main/java/com/example/taskservice/TaskServiceApplication.java
