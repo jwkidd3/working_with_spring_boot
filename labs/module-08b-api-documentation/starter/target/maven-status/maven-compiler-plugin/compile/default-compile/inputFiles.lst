@@ -1,8 +1,0 @@
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/entity/TaskStatus.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/service/TaskService.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/repository/TaskRepository.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/dto/CreateTaskRequest.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/controller/TaskController.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/TaskApiApplication.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/entity/Task.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-08b-api-documentation/starter/src/main/java/com/example/taskapi/entity/TaskPriority.java

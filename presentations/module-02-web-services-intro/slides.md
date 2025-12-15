@@ -872,9 +872,10 @@ public class CreateUserRequest {
 
 ---
 
-## Lab Exercise
+## Lab Exercises
 
-### Lab 2: Building a Simple REST API
+### Lab 2: Introduction to Web Services - Building a REST API
+`labs/module-02-web-services-intro/`
 
 You will build a REST API that:
 - Implements CRUD operations for a resource
@@ -882,7 +883,13 @@ You will build a REST API that:
 - Validates request data
 - Returns proper HTTP status codes
 
-**Time:** 45-60 minutes
+### Lab 2b: Spring Boot Configuration & Profiles
+`labs/module-02b-configuration/`
+
+You will learn to:
+- Use @ConfigurationProperties for type-safe configuration
+- Work with multiple profiles (dev, prod)
+- Externalize configuration
 
 ---
 

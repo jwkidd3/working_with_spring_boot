@@ -932,18 +932,31 @@ public class ProductController {
 
 ---
 
-## Lab Exercise
+## Lab Exercises
 
-### Lab 4: Advanced REST Features
+### Lab 4: Building RESTful Web Services with Spring Boot
+`labs/module-04-restful-services/`
 
-You will enhance the Task API with:
-- HATEOAS links
-- Actuator monitoring
-- Custom metrics
-- Advanced filtering
-- API documentation
+You will build a complete REST API with:
+- Full CRUD operations
+- Proper HTTP methods and status codes
+- Exception handling
 
-**Time:** 60-75 minutes
+### Lab 4a: Implementing HATEOAS
+`labs/module-04a-hateoas/`
+
+You will add hypermedia support:
+- Self and collection links
+- Conditional links based on state
+- RepresentationModelAssembler
+
+### Lab 4b: Spring Boot Actuator & Monitoring
+`labs/module-04b-actuator/`
+
+You will configure monitoring:
+- Health checks and metrics
+- Custom health indicators
+- Custom metrics with Micrometer
 
 ---
 

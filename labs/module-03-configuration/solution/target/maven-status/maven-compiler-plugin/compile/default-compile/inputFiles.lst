@@ -1,9 +1,0 @@
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/controller/ConfigController.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/service/NotificationService.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/service/AppInfoService.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/service/ProdEmailSender.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/service/EmailSender.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/service/DevEmailSender.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/config/AppConfig.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/config/NotificationProperties.java
-/Users/jwkidd3/classes_in_development/working_with_spring_boot/labs/module-03-configuration/solution/src/main/java/com/example/configlab/ConfigLabApplication.java

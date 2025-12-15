@@ -743,15 +743,14 @@ public class TaskEventHandler {
 
 ## Lab Exercise
 
-### Lab 5: Securing the Task API
+### Lab 5: Spring Security
+`labs/module-05-spring-security/`
 
 You will:
 - Add Spring Security to the Task API
 - Implement JWT authentication
 - Configure role-based authorization
 - Secure endpoints with method-level security
-
-**Time:** 60-75 minutes
 
 ---
 

@@ -800,9 +800,10 @@ user.getOrders(); // LazyInitializationException!
 
 ---
 
-## Lab Exercise
+## Lab Exercises
 
-### Lab 3: Building a Data Layer
+### Lab 3: Using Spring Boot with Databases
+`labs/module-03-spring-boot-databases/`
 
 You will enhance the Task API to:
 - Persist tasks in a database
@@ -810,7 +811,14 @@ You will enhance the Task API to:
 - Implement pagination and sorting
 - Create custom queries
 
-**Time:** 60-75 minutes
+### Lab 3b: Advanced Queries & Transactions
+`labs/module-03b-advanced-queries/`
+
+You will explore advanced JPA features:
+- JPQL and native queries
+- Specifications for dynamic queries
+- Transaction management
+- Optimistic locking and auditing
 
 ---
 

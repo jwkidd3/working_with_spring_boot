@@ -656,6 +656,27 @@ spring.web.resources.cache.cachecontrol.max-age=365d
 
 ---
 
+## Lab Exercises
+
+### Lab 7: Testing & Deployment
+`labs/module-07-additional-topics/`
+
+You will:
+- Write unit tests with JUnit and Mockito
+- Create integration tests with MockMvc
+- Package the application as a JAR
+- Configure for different environments
+
+### Lab 7b: API Documentation with OpenAPI
+`labs/module-07b-api-documentation/`
+
+You will:
+- Add SpringDoc OpenAPI to your project
+- Customize API documentation with annotations
+- Use Swagger UI to test endpoints
+
+---
+
 ## Section 5: What We Learned
 
 ---

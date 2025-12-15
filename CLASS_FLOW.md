@@ -12,10 +12,9 @@
 | 3 | Section 3: Dependency Injection (DI) |
 | 4 | Section 4: Java Annotations |
 | 5 | Section 5: Spring Configuration |
-| 6 | **Lab 1: Spring Fundamentals** - `labs/module-01-spring-fundamentals/` |
-| 7 | Section 6: Advanced Dependency Injection |
-| 8 | **Lab 1b: DI Deep Dive** - `labs/module-01b-di-deep-dive/` |
-| 9 | Summary |
+| 6 | **Lab 1: Spring Framework Fundamentals** - `labs/module-01-spring-fundamentals/` |
+| 7 | **Lab 1b: Dependency Injection Deep Dive** - `labs/module-01b-di-deep-dive/` |
+| 8 | Summary |
 
 ---
 
@@ -27,11 +26,11 @@
 | 1 | Section 1: HTTP Fundamentals |
 | 2 | Section 2: SOAP Web Services |
 | 3 | Section 3: REST Web Services |
-| 4 | Section 4: Exception Handling |
-| 5 | Section 5: Request Validation |
-| 6 | **Lab 2: REST API Basics** - `labs/module-02-web-services-intro/` |
-| 7 | Section 6: Configuration & Profiles |
-| 8 | **Lab 3: Configuration & Profiles** - `labs/module-03-configuration/` |
+| 4 | Section 4: REST in Spring Boot |
+| 5 | Section 5: Exception Handling |
+| 6 | Section 6: Request Validation |
+| 7 | **Lab 2: Introduction to Web Services - Building a REST API** - `labs/module-02-web-services-intro/` |
+| 8 | **Lab 2b: Spring Boot Configuration & Profiles** - `labs/module-02b-configuration/` |
 | 9 | Summary |
 
 ---
@@ -48,10 +47,9 @@
 | 3 | Section 3: Spring Data JPA |
 | 4 | Section 4: Query Methods |
 | 5 | Section 5: JPA Configuration |
-| 6 | **Lab 4: Database Integration** - `labs/module-03-spring-boot-databases/` |
-| 7 | Section 6: Advanced JPA Features |
-| 8 | **Lab 4b: Advanced Queries & Transactions** - `labs/module-04b-advanced-queries/` |
-| 9 | Summary |
+| 6 | **Lab 3: Using Spring Boot with Databases** - `labs/module-03-spring-boot-databases/` |
+| 7 | **Lab 3b: Advanced Queries & Transactions** - `labs/module-03b-advanced-queries/` |
+| 8 | Summary |
 
 ---
 
@@ -62,11 +60,11 @@
 |-------|---------|
 | 1 | Section 1: Project Initialization |
 | 2 | Section 2: Complete CRUD Implementation |
-| 3 | **Lab 5: Complete REST API** - `labs/module-04-restful-services/` |
+| 3 | **Lab 4: Building RESTful Web Services with Spring Boot** - `labs/module-04-restful-services/` |
 | 4 | Section 3: HATEOAS |
-| 5 | **Lab 5a: HATEOAS** - `labs/module-05a-hateoas/` |
+| 5 | **Lab 4a: Implementing HATEOAS** - `labs/module-04a-hateoas/` |
 | 6 | Section 4: Monitoring with Actuator |
-| 7 | **Lab 5b: Actuator** - `labs/module-05b-actuator/` |
+| 7 | **Lab 4b: Spring Boot Actuator & Monitoring** - `labs/module-04b-actuator/` |
 | 8 | Section 5: Filtering and Content Negotiation |
 | 9 | Section 6: API Versioning |
 | 10 | Summary |
@@ -86,7 +84,7 @@
 | 4 | Section 4: JWT Authentication |
 | 5 | Section 5: Database User Store |
 | 6 | Section 6: Spring Boot Data REST Security |
-| 7 | **Lab 6: Spring Security** - `labs/module-05-spring-security/` |
+| 7 | **Lab 5: Spring Security** - `labs/module-05-spring-security/` |
 | 8 | Summary |
 
 ---
@@ -98,12 +96,11 @@
 |-------|---------|
 | 1 | Section 1: Microservices Communication |
 | 2 | Section 2: REST Communication |
-| 3 | Section 3: Spring Application Events |
-| 4 | **Lab 7: Service Integration** - `labs/module-06-service-orchestration/` |
-| 5 | Section 4: Message Queues (Production) |
-| 6 | Section 5: Building Multi-Service Application |
-| 7 | Section 6: Best Practices |
-| 8 | Summary |
+| 3 | Section 3: Asynchronous Messaging |
+| 4 | **Lab 6: Service Orchestration** - `labs/module-06-service-orchestration/` |
+| 5 | Section 4: Building Multi-Service Application |
+| 6 | Section 5: Best Practices |
+| 7 | Summary |
 
 ---
 
@@ -115,29 +112,28 @@
 | 1 | Section 1: Spring Boot CLI |
 | 2 | Section 2: Testing Spring Boot Applications |
 | 3 | Section 3: Packaging & Deployment |
-| 4 | **Lab 8: Testing & Packaging** - `labs/module-07-additional-topics/` |
-| 5 | Section 4: API Documentation with OpenAPI |
-| 6 | **Lab 8b: API Documentation** - `labs/module-08b-api-documentation/` |
-| 7 | Section 5: Best Practices |
-| 8 | Section 6: What We Learned |
-| 9 | Course Wrap-up |
+| 4 | **Lab 7: Testing & Deployment** - `labs/module-07-additional-topics/` |
+| 5 | **Lab 7b: API Documentation with OpenAPI** - `labs/module-07b-api-documentation/` |
+| 6 | Section 4: Best Practices |
+| 7 | Section 5: What We Learned |
+| 8 | Course Wrap-up |
 
 ---
 
 ## Lab Summary
 
-| Lab | Folder |
-|-----|--------|
-| Lab 1 | `labs/module-01-spring-fundamentals/` |
-| Lab 1b | `labs/module-01b-di-deep-dive/` |
-| Lab 2 | `labs/module-02-web-services-intro/` |
-| Lab 3 | `labs/module-03-configuration/` |
-| Lab 4 | `labs/module-03-spring-boot-databases/` |
-| Lab 4b | `labs/module-04b-advanced-queries/` |
-| Lab 5 | `labs/module-04-restful-services/` |
-| Lab 5a | `labs/module-05a-hateoas/` |
-| Lab 5b | `labs/module-05b-actuator/` |
-| Lab 6 | `labs/module-05-spring-security/` |
-| Lab 7 | `labs/module-06-service-orchestration/` |
-| Lab 8 | `labs/module-07-additional-topics/` |
-| Lab 8b | `labs/module-08b-api-documentation/` |
+| Lab | Title | Folder |
+|-----|-------|--------|
+| Lab 1 | Spring Framework Fundamentals | `labs/module-01-spring-fundamentals/` |
+| Lab 1b | Dependency Injection Deep Dive | `labs/module-01b-di-deep-dive/` |
+| Lab 2 | Introduction to Web Services - Building a REST API | `labs/module-02-web-services-intro/` |
+| Lab 2b | Spring Boot Configuration & Profiles | `labs/module-02b-configuration/` |
+| Lab 3 | Using Spring Boot with Databases | `labs/module-03-spring-boot-databases/` |
+| Lab 3b | Advanced Queries & Transactions | `labs/module-03b-advanced-queries/` |
+| Lab 4 | Building RESTful Web Services with Spring Boot | `labs/module-04-restful-services/` |
+| Lab 4a | Implementing HATEOAS | `labs/module-04a-hateoas/` |
+| Lab 4b | Spring Boot Actuator & Monitoring | `labs/module-04b-actuator/` |
+| Lab 5 | Spring Security | `labs/module-05-spring-security/` |
+| Lab 6 | Service Orchestration | `labs/module-06-service-orchestration/` |
+| Lab 7 | Testing & Deployment | `labs/module-07-additional-topics/` |
+| Lab 7b | API Documentation with OpenAPI | `labs/module-07b-api-documentation/` |

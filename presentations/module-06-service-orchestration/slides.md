@@ -707,14 +707,13 @@ INFO [notification-service,abc123,ghi789] - Sending notification
 
 ## Lab Exercise
 
-### Lab 6: Multi-Service Communication
+### Lab 6: Service Orchestration
+`labs/module-06-service-orchestration/`
 
 You will build:
 - Task Service that publishes events
-- Notification Service that consumes events
-- REST communication between services
-
-**Time:** 60-75 minutes
+- User Service for REST communication
+- Event-driven communication between services
 
 ---
 

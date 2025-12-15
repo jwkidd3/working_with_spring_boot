@@ -618,17 +618,23 @@ public class CacheService {
 
 ---
 
-## Lab Exercise
+## Lab Exercises
 
-### Lab 1: Spring Fundamentals
+### Lab 1: Spring Framework Fundamentals
+`labs/module-01-spring-fundamentals/`
 
 You will build a simple Spring application that demonstrates:
 - Creating and configuring beans
 - Using dependency injection
-- Working with multiple profiles
-- Implementing lifecycle callbacks
+- Working with profiles
 
-**Time:** 45-60 minutes
+### Lab 1b: Dependency Injection Deep Dive
+`labs/module-01b-di-deep-dive/`
+
+You will explore advanced DI concepts:
+- Constructor, setter, and field injection
+- @Qualifier and @Primary annotations
+- Bean scopes and lifecycle callbacks
 
 ---
 
