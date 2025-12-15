@@ -21,28 +21,13 @@ By the end of this lab, you will be able to:
 
 ---
 
-## Part 1: Creating Your First Spring Boot Application
+## Part 1: Getting Started with the Starter Project
 
-### Step 1.1: Generate the Project
+### Step 1.1: Open the Starter Project
 
-1. Go to [Spring Initializr](https://start.spring.io/)
-2. Configure the project:
-   - **Project:** Maven
-   - **Language:** Java
-   - **Spring Boot:** 3.2.x (latest stable)
-   - **Group:** com.example
-   - **Artifact:** spring-fundamentals-lab
-   - **Name:** spring-fundamentals-lab
-   - **Package name:** com.example.springfundamentals
-   - **Packaging:** Jar
-   - **Java:** 17
-
-3. Add Dependencies:
-   - Spring Web
-
-4. Click **Generate** to download the project
-
-5. Extract and open in your IDE
+1. Navigate to the `starter` folder for this lab
+2. Open the project in your IDE (IntelliJ IDEA recommended)
+3. Wait for Maven to download dependencies
 
 ### Step 1.2: Verify the Project Structure
 
@@ -644,7 +629,7 @@ Modify the `CacheService` to:
 
 In this lab, you learned:
 
-1. **Project Setup**: How to create a Spring Boot application using Spring Initializr
+1. **Project Setup**: How to work with a Spring Boot application structure
 2. **Dependency Injection**: How to use constructor injection to wire services together
 3. **Stereotype Annotations**: Using @Service, @RestController, and @Configuration
 4. **Profiles**: Creating environment-specific configurations using @Profile

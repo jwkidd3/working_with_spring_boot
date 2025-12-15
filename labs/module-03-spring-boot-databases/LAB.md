@@ -28,29 +28,17 @@ You will enhance the Task Management API from Lab 2 to persist data in a databas
 
 ## Part 1: Project Setup
 
-### Step 1.1: Create New Project or Modify Existing
+### Step 1.1: Open the Starter Project
 
-Create a new project from Spring Initializr or add dependencies to your Lab 2 project.
+1. Navigate to the `starter` folder for this lab
+2. Open the project in your IDE (IntelliJ IDEA recommended)
+3. Wait for Maven to download dependencies
 
-**Dependencies:**
+The starter project already includes the required dependencies:
 - Spring Web
 - Spring Data JPA
 - Validation
 - HSQLDB Database
-
-**Add to pom.xml:**
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-
-<dependency>
-    <groupId>org.hsqldb</groupId>
-    <artifactId>hsqldb</artifactId>
-    <scope>runtime</scope>
-</dependency>
-```
 
 ### Step 1.2: Configure Database
 

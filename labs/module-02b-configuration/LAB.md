@@ -28,21 +28,11 @@ You are building a notification service that needs to work differently in develo
 
 ## Part 1: Project Setup
 
-### Step 1.1: Create the Project
+### Step 1.1: Open the Starter Project
 
-1. Go to [Spring Initializr](https://start.spring.io/)
-2. Configure:
-   - **Group:** com.example
-   - **Artifact:** config-lab
-   - **Name:** config-lab
-   - **Package name:** com.example.configlab
-   - **Java:** 17
-
-3. Add Dependencies:
-   - Spring Web
-   - Validation
-
-4. Generate and extract the project
+1. Navigate to the `starter` folder for this lab
+2. Open the project in your IDE (IntelliJ IDEA recommended)
+3. Wait for Maven to download dependencies
 
 ### Step 1.2: Project Structure
 
