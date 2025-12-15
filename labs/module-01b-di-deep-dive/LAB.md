@@ -919,7 +919,39 @@ public class ServiceA {
 
 ### Step 5.4: Solution 2 - Use Setter Injection
 
-Alternative approach - update `circular/ServiceB.java`:
+Alternative approach - update BOTH classes to use setter injection:
+
+Update `circular/ServiceA.java`:
+
+```java
+package com.example.dilab.circular;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ServiceA {
+
+    private ServiceB serviceB;
+
+    // Setter injection allows the bean to be created first,
+    // then dependency injected after
+    @Autowired
+    public void setServiceB(ServiceB serviceB) {
+        this.serviceB = serviceB;
+    }
+
+    public String getName() {
+        return "ServiceA";
+    }
+
+    public String callB() {
+        return "A calling -> " + serviceB.getName();
+    }
+}
+```
+
+Update `circular/ServiceB.java`:
 
 ```java
 package com.example.dilab.circular;
@@ -948,6 +980,8 @@ public class ServiceB {
     }
 }
 ```
+
+**Note:** Both classes must use setter injection for this solution to work. If one uses constructor injection, the cycle cannot be broken.
 
 ### Step 5.5: Solution 3 - Refactor to Remove Cycle (Best)
 

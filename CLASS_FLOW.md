@@ -10,11 +10,11 @@
 | 1 | Section 1: Introduction to Spring Framework |
 | 2 | Section 2: Inversion of Control (IoC) |
 | 3 | Section 3: Dependency Injection (DI) |
-| 4 | Section 4: Java Annotations |
-| 5 | Section 5: Spring Configuration |
-| 6 | **Lab 1: Spring Framework Fundamentals** - `labs/module-01-spring-fundamentals/` |
-| 7 | **Lab 1b: Dependency Injection Deep Dive** - `labs/module-01b-di-deep-dive/` |
-| 8 | Summary |
+| 4 | **Lab 1: Spring Framework Fundamentals** - `labs/module-01-spring-fundamentals/` |
+| 5 | Section 4: Java Annotations |
+| 6 | Section 5: Spring Configuration |
+| 7 | Summary |
+| 8 | **Lab 1b: Dependency Injection Deep Dive** - `labs/module-01b-di-deep-dive/` |
 
 ---
 
@@ -27,11 +27,11 @@
 | 2 | Section 2: SOAP Web Services |
 | 3 | Section 3: REST Web Services |
 | 4 | Section 4: REST in Spring Boot |
-| 5 | Section 5: Exception Handling |
-| 6 | Section 6: Request Validation |
-| 7 | **Lab 2: Introduction to Web Services - Building a REST API** - `labs/module-02-web-services-intro/` |
-| 8 | **Lab 2b: Spring Boot Configuration & Profiles** - `labs/module-02b-configuration/` |
-| 9 | Summary |
+| 5 | **Lab 2: Introduction to Web Services - Building a REST API** - `labs/module-02-web-services-intro/` |
+| 6 | Section 5: Exception Handling |
+| 7 | Section 6: Request Validation |
+| 8 | Summary |
+| 9 | **Lab 2b: Spring Boot Configuration & Profiles** - `labs/module-02b-configuration/` |
 
 ---
 
@@ -45,11 +45,11 @@
 | 1 | Section 1: Database Configuration |
 | 2 | Section 2: JPA Fundamentals |
 | 3 | Section 3: Spring Data JPA |
-| 4 | Section 4: Query Methods |
-| 5 | Section 5: JPA Configuration |
-| 6 | **Lab 3: Using Spring Boot with Databases** - `labs/module-03-spring-boot-databases/` |
-| 7 | **Lab 3b: Advanced Queries & Transactions** - `labs/module-03b-advanced-queries/` |
-| 8 | Summary |
+| 4 | **Lab 3: Using Spring Boot with Databases** - `labs/module-03-spring-boot-databases/` |
+| 5 | Section 4: Query Methods |
+| 6 | Section 5: JPA Configuration |
+| 7 | Summary |
+| 8 | **Lab 3b: Advanced Queries & Transactions** - `labs/module-03b-advanced-queries/` |
 
 ---
 
@@ -84,8 +84,8 @@
 | 4 | Section 4: JWT Authentication |
 | 5 | Section 5: Database User Store |
 | 6 | Section 6: Spring Boot Data REST Security |
-| 7 | **Lab 5: Spring Security** - `labs/module-05-spring-security/` |
-| 8 | Summary |
+| 7 | Summary |
+| 8 | **Lab 5: Spring Security** - `labs/module-05-spring-security/` |
 
 ---
 
