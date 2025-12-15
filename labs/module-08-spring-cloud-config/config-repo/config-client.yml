@@ -1,0 +1,10 @@
+# Configuration specific to config-client application
+app:
+  name: Config Client Application
+  description: A Spring Boot application using Spring Cloud Config
+  version: 1.0.0
+
+feature:
+  new-dashboard: false
+  dark-mode: false
+  debug-mode: false

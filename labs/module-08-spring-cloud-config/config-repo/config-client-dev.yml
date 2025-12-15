@@ -1,0 +1,14 @@
+# Development profile configuration for config-client
+app:
+  name: Config Client Application (Development)
+  description: Development environment with debug features enabled
+  version: 1.0.0-DEV
+
+feature:
+  new-dashboard: true
+  dark-mode: true
+  debug-mode: true
+
+logging:
+  level:
+    com.example: DEBUG

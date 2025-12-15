@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-demo-config
+  namespace: default
+data:
+  application.yml: |
+    app:
+      greeting: "Hello from Kubernetes ConfigMap!"
+      feature:
+        enabled: true

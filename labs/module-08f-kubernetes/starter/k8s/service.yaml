@@ -1,0 +1,13 @@
+# TODO: Create Service for k8s-demo
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-demo
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: k8s-demo

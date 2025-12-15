@@ -1,0 +1,14 @@
+# TODO: Configure OpenFeign client
+# - Enable circuit breaker for Feign
+# - Configure timeouts
+# - Enable logging
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: feign-client
+
+# TODO: Add eureka client configuration
+# TODO: Add feign configuration

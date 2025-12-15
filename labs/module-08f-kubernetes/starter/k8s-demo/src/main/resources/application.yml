@@ -1,0 +1,20 @@
+# TODO: Configure Spring Cloud Kubernetes
+# - Enable ConfigMap and Secrets integration
+# - Configure service discovery
+# - Enable configuration reload
+# - Set up actuator health probes
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: k8s-demo
+
+app:
+  greeting: "Hello from default config!"
+  feature:
+    enabled: false
+
+# TODO: Add spring.cloud.kubernetes configuration
+# TODO: Add management endpoints for health probes

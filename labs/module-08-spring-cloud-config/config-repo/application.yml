@@ -1,0 +1,7 @@
+# Default configuration for all applications
+app:
+  default-message: "Hello from Config Server!"
+
+logging:
+  level:
+    com.example: INFO

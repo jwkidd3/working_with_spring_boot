@@ -1,0 +1,11 @@
+# TODO: Configure the Config Server
+# - Set server port to 8888
+# - Enable native profile
+# - Configure search-locations for config-repo
+
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server

@@ -120,6 +120,20 @@
 
 ---
 
+### Module 8: Spring Cloud
+**Lab Only Module**
+
+| Order | Content |
+|-------|---------|
+| 1 | **Lab 8: Spring Cloud Config** - `labs/module-08-spring-cloud-config/` |
+| 2 | **Lab 8b: Service Discovery with Eureka** - `labs/module-08b-eureka/` |
+| 3 | **Lab 8c: API Gateway with Spring Cloud Gateway** - `labs/module-08c-gateway/` |
+| 4 | **Lab 8d: Circuit Breaker with Resilience4j** - `labs/module-08d-circuit-breaker/` |
+| 5 | **Lab 8e: Declarative REST Clients with OpenFeign** - `labs/module-08e-openfeign/` |
+| 6 | **Lab 8f: Spring Cloud Kubernetes** - `labs/module-08f-kubernetes/` |
+
+---
+
 ## Lab Summary
 
 | Lab | Title | Folder |
@@ -137,3 +151,9 @@
 | Lab 6 | Service Orchestration | `labs/module-06-service-orchestration/` |
 | Lab 7 | Testing & Deployment | `labs/module-07-additional-topics/` |
 | Lab 7b | API Documentation with OpenAPI | `labs/module-07b-api-documentation/` |
+| Lab 8 | Spring Cloud Config | `labs/module-08-spring-cloud-config/` |
+| Lab 8b | Service Discovery with Eureka | `labs/module-08b-eureka/` |
+| Lab 8c | API Gateway with Spring Cloud Gateway | `labs/module-08c-gateway/` |
+| Lab 8d | Circuit Breaker with Resilience4j | `labs/module-08d-circuit-breaker/` |
+| Lab 8e | Declarative REST Clients with OpenFeign | `labs/module-08e-openfeign/` |
+| Lab 8f | Spring Cloud Kubernetes | `labs/module-08f-kubernetes/` |

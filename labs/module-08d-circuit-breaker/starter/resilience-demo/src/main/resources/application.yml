@@ -1,0 +1,15 @@
+# TODO: Configure Resilience4j Circuit Breaker
+# - Configure circuit breaker instances
+# - Configure retry settings
+# - Configure time limiter
+# - Enable actuator endpoints for monitoring
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: resilience-demo
+
+# TODO: Add resilience4j configuration
+# TODO: Add management endpoints configuration

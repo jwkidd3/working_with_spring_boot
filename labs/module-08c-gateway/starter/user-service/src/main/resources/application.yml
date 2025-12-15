@@ -1,0 +1,12 @@
+# TODO: Configure User Service
+# - Set server port to 8081
+# - Configure eureka client
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+
+# TODO: Add eureka client configuration

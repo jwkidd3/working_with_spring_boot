@@ -1,0 +1,16 @@
+# TODO: Configure Spring Cloud Gateway
+# - Set server port to 8080
+# - Configure routes for user-service and order-service
+# - Add predicates for path-based routing
+# - Add filters for request/response modification
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+# TODO: Add spring.cloud.gateway.routes configuration
+# TODO: Add eureka client configuration for service discovery
+# TODO: Add management endpoints configuration

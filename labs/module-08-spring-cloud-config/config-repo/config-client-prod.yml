@@ -1,0 +1,15 @@
+# Production profile configuration for config-client
+app:
+  name: Config Client Application (Production)
+  description: Production environment with optimized settings
+  version: 1.0.0
+
+feature:
+  new-dashboard: false
+  dark-mode: false
+  debug-mode: false
+
+logging:
+  level:
+    com.example: WARN
+    root: INFO

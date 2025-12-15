@@ -1,0 +1,15 @@
+# TODO: Configure Eureka Client
+# - Set server port to 8080
+# - Set application name to eureka-client
+# - Configure eureka.client.service-url.defaultZone to point to Eureka server
+# - Configure instance settings (prefer-ip-address, lease intervals)
+# - Enable actuator endpoints for health checks
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: eureka-client
+
+# TODO: Add eureka and management configuration

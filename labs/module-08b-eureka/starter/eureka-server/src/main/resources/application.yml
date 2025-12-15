@@ -1,0 +1,15 @@
+# TODO: Configure Eureka Server
+# - Set server port to 8761
+# - Set application name
+# - Configure eureka.instance.hostname
+# - Disable register-with-eureka and fetch-registry (server doesn't need these)
+# - Configure the service-url defaultZone
+
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+
+# TODO: Add eureka configuration

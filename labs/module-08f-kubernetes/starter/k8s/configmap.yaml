@@ -1,0 +1,9 @@
+# TODO: Create ConfigMap with application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-demo-config
+  namespace: default
+data:
+  application.yml: |
+    # Add your configuration here

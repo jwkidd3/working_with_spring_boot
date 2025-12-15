@@ -1,0 +1,12 @@
+# TODO: Configure the Config Client
+# - Set server port to 8080
+# - Set application name to config-client
+# - Configure connection to Config Server at http://localhost:8888
+# - Enable actuator refresh endpoint
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: config-client

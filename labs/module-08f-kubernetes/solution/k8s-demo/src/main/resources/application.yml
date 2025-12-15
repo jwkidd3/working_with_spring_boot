@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: k8s-demo
+  cloud:
+    kubernetes:
+      config:
+        enabled: true
+        name: k8s-demo-config
+        namespace: default
+        enable-api: true
+      secrets:
+        enabled: true
+        name: k8s-demo-secrets
+        namespace: default
+        enable-api: true
+      reload:
+        enabled: true
+        mode: polling
+        period: 15000
+      discovery:
+        enabled: true
+        all-namespaces: false
+
+app:
+  greeting: "Hello from default config!"
+  feature:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
