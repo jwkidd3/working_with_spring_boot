@@ -1,9 +1,8 @@
-# Working with Spring Boot 
+# Working with Spring Boot
 A comprehensive hands-on workshop for building microservices using the Spring Boot framework.
 
 ## Course Overview
 
-**Duration:** 3 Days (12 Labs - 4 per day, ~7 hours/day)
 **Skill Level:** Intermediate
 **Prerequisites:**
 - Solid background in Java programming
@@ -18,39 +17,39 @@ By the end of this workshop, participants will be able to:
 
 ## Course Structure
 
-### Day 1: Foundations (~7 hours)
+### Day 1: Foundations
 
-| Time | Activity | Duration | Topic |
-|------|----------|----------|-------|
-| AM | Presentation | ~1.5 hrs | Spring Framework Fundamentals |
-| AM | **Lab 1** | 45-60 min | Spring Fundamentals |
-| AM | **Lab 1b** | 45-60 min | Dependency Injection Deep Dive |
-| PM | Presentation | ~1 hr | Introduction to Web Services |
-| PM | **Lab 2** | 45-60 min | REST API Basics |
-| PM | **Lab 3** | 45-60 min | Configuration & Profiles |
+| Activity | Topic |
+|----------|-------|
+| Presentation | Spring Framework Fundamentals |
+| **Lab 1** | Spring Fundamentals |
+| **Lab 1b** | Dependency Injection Deep Dive |
+| Presentation | Introduction to Web Services |
+| **Lab 2** | REST API Basics |
+| **Lab 3** | Configuration & Profiles |
 
-### Day 2: Building RESTful Services (~7 hours)
+### Day 2: Building RESTful Services
 
-| Time | Activity | Duration | Topic |
-|------|----------|----------|-------|
-| AM | Presentation | ~1.5 hrs | Spring Boot with Databases |
-| AM | **Lab 4** | 60-75 min | Database Integration |
-| AM | **Lab 4b** | 45-60 min | Advanced Queries & Transactions |
-| PM | Presentation | ~1.5 hrs | HATEOAS & Actuator |
-| PM | **Lab 5a** | 45-60 min | Implementing HATEOAS |
-| PM | **Lab 5b** | 45-60 min | Actuator & Monitoring |
+| Activity | Topic |
+|----------|-------|
+| Presentation | Spring Boot with Databases |
+| **Lab 4** | Database Integration |
+| **Lab 4b** | Advanced Queries & Transactions |
+| Presentation | HATEOAS & Actuator |
+| **Lab 5a** | Implementing HATEOAS |
+| **Lab 5b** | Actuator & Monitoring |
 
-### Day 3: Advanced Topics (~7 hours)
+### Day 3: Advanced Topics
 
-| Time | Activity | Duration | Topic |
-|------|----------|----------|-------|
-| AM | Presentation | ~1.5 hrs | Spring Security |
-| AM | **Lab 6** | 60-75 min | Spring Security & JWT |
-| PM | Presentation | ~1 hr | Service Orchestration |
-| PM | **Lab 7** | 60-75 min | Service Orchestration |
-| PM | Presentation | ~1 hr | Testing & Best Practices |
-| PM | **Lab 8** | 45-60 min | Testing & Deployment |
-| PM | **Lab 8b** | 45-60 min | API Documentation with OpenAPI |
+| Activity | Topic |
+|----------|-------|
+| Presentation | Spring Security |
+| **Lab 6** | Spring Security & JWT |
+| Presentation | Service Orchestration |
+| **Lab 7** | Service Orchestration |
+| Presentation | Testing & Best Practices |
+| **Lab 8** | Testing & Deployment |
+| **Lab 8b** | API Documentation with OpenAPI |
 
 ## Module Details
 
@@ -110,20 +109,20 @@ By the end of this workshop, participants will be able to:
 
 ## Lab Summary
 
-| Lab | Title | Duration | Key Skills |
-|-----|-------|----------|------------|
-| 1 | Spring Fundamentals | 45-60 min | IoC, DI, Beans, Profiles |
-| 1b | DI Deep Dive | 45-60 min | Injection Types, @Qualifier, Scopes, Lifecycle |
-| 2 | REST API Basics | 45-60 min | Controllers, DTOs, Validation |
-| 3 | Configuration | 45-60 min | @ConfigurationProperties, Profiles |
-| 4 | Database Integration | 60-75 min | JPA, Repositories, Basic Queries |
-| 4b | Advanced Queries | 45-60 min | JPQL, Specifications, Transactions, Auditing |
-| 5a | HATEOAS | 45-60 min | Hypermedia, Links, Assemblers |
-| 5b | Actuator | 45-60 min | Health, Metrics, Monitoring |
-| 6 | Security | 60-75 min | Authentication, JWT, Authorization |
-| 7 | Service Orchestration | 60-75 min | REST Clients, Events, Multi-Service |
-| 8 | Testing & Deployment | 45-60 min | JUnit, MockMvc, Packaging |
-| 8b | API Documentation | 45-60 min | OpenAPI, Swagger UI, Schema Customization |
+| Lab | Title | Key Skills |
+|-----|-------|------------|
+| 1 | Spring Fundamentals | IoC, DI, Beans, Profiles |
+| 1b | DI Deep Dive | Injection Types, @Qualifier, Scopes, Lifecycle |
+| 2 | REST API Basics | Controllers, DTOs, Validation |
+| 3 | Configuration | @ConfigurationProperties, Profiles |
+| 4 | Database Integration | JPA, Repositories, Basic Queries |
+| 4b | Advanced Queries | JPQL, Specifications, Transactions, Auditing |
+| 5a | HATEOAS | Hypermedia, Links, Assemblers |
+| 5b | Actuator | Health, Metrics, Monitoring |
+| 6 | Security | Authentication, JWT, Authorization |
+| 7 | Service Orchestration | REST Clients, Events, Multi-Service |
+| 8 | Testing & Deployment | JUnit, MockMvc, Packaging |
+| 8b | API Documentation | OpenAPI, Swagger UI, Schema Customization |
 
 ## Directory Structure
 
