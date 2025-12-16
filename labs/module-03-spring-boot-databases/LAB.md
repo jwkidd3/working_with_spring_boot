@@ -484,9 +484,63 @@ public class PageResponse<T> {
 
 ---
 
-## Part 5: Update the Service Layer
+## Part 5: Create Exception Classes
 
-### Step 5.1: Update Task Service
+### Step 5.1: Create TaskNotFoundException
+
+Create `src/main/java/com/example/taskapi/exception/TaskNotFoundException.java`:
+
+```java
+package com.example.taskapi.exception;
+
+public class TaskNotFoundException extends RuntimeException {
+
+    public TaskNotFoundException(Long id) {
+        super("Task not found with id: " + id);
+    }
+
+    public TaskNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+### Step 5.2: Create Global Exception Handler (Optional)
+
+Create `src/main/java/com/example/taskapi/exception/GlobalExceptionHandler.java`:
+
+```java
+package com.example.taskapi.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTaskNotFound(TaskNotFoundException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", HttpStatus.NOT_FOUND.value());
+        error.put("error", "Not Found");
+        error.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+}
+```
+
+---
+
+## Part 6: Update the Service Layer
+
+### Step 6.1: Update Task Service
 
 Update `src/main/java/com/example/taskapi/service/TaskService.java`:
 
@@ -613,9 +667,9 @@ public class TaskService {
 
 ---
 
-## Part 6: Update the Controller
+## Part 7: Update the Controller
 
-### Step 6.1: Update Task Controller
+### Step 7.1: Update Task Controller
 
 Update `src/main/java/com/example/taskapi/controller/TaskController.java`:
 
@@ -742,9 +796,9 @@ public class TaskController {
 
 ---
 
-## Part 7: Add Sample Data
+## Part 8: Add Sample Data
 
-### Step 7.1: Create Data Initializer
+### Step 8.1: Create Data Initializer
 
 Create `src/main/java/com/example/taskapi/config/DataInitializer.java`:
 
