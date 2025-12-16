@@ -729,4 +729,4 @@ In this lab, you learned:
 
 ## Next Steps
 
-In Lab 5b, you'll add production monitoring with Spring Boot Actuator.
+In Lab 4b, you'll add production monitoring with Spring Boot Actuator.

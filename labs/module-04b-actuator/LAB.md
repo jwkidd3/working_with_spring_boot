@@ -11,7 +11,7 @@ By the end of this lab, you will be able to:
 
 ## Prerequisites
 
-- Completed Labs 1-5a
+- Completed Labs 1-4a
 - Running Task API application
 
 ## Duration
