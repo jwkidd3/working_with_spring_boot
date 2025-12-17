@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: batch-demo
+
+  datasource:
+    url: jdbc:hsqldb:mem:batchdb
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false  # Don't run jobs on startup
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

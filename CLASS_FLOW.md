@@ -131,6 +131,7 @@
 | 4 | **Lab 8d: Circuit Breaker with Resilience4j** - `labs/module-08d-circuit-breaker/` |
 | 5 | **Lab 8e: Declarative REST Clients with OpenFeign** - `labs/module-08e-openfeign/` |
 | 6 | **Lab 8f: Spring Cloud Kubernetes** - `labs/module-08f-kubernetes/` |
+| 7 | **Lab 8g: Batch Processing with Spring Batch** - `labs/module-08g-spring-batch/` |
 
 ---
 
@@ -157,3 +158,4 @@
 | Lab 8d | Circuit Breaker with Resilience4j | `labs/module-08d-circuit-breaker/` |
 | Lab 8e | Declarative REST Clients with OpenFeign | `labs/module-08e-openfeign/` |
 | Lab 8f | Spring Cloud Kubernetes | `labs/module-08f-kubernetes/` |
+| Lab 8g | Batch Processing with Spring Batch | `labs/module-08g-spring-batch/` |
