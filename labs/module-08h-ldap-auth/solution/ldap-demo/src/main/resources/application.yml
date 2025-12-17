@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ldap-demo
+
+  # Embedded LDAP Server Configuration
+  ldap:
+    embedded:
+      base-dn: dc=example,dc=com
+      ldif: classpath:test-users.ldif
+      port: 8389
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.ldap: DEBUG

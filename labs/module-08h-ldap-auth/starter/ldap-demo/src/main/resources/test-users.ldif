@@ -1,0 +1,72 @@
+# Root
+dn: dc=example,dc=com
+objectClass: top
+objectClass: domain
+dc: example
+
+# Users OU
+dn: ou=Users,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Users
+
+# Groups OU
+dn: ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Groups
+
+# Regular User
+dn: uid=john.doe,ou=Users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: John Doe
+sn: Doe
+uid: john.doe
+userPassword: password123
+mail: john.doe@example.com
+
+# Manager User
+dn: uid=jane.smith,ou=Users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Jane Smith
+sn: Smith
+uid: jane.smith
+userPassword: password123
+mail: jane.smith@example.com
+
+# Admin User
+dn: uid=admin.user,ou=Users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Admin User
+sn: User
+uid: admin.user
+userPassword: admin123
+mail: admin@example.com
+
+# ROLE_USER Group
+dn: cn=ROLE_USER,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+cn: ROLE_USER
+member: uid=john.doe,ou=Users,dc=example,dc=com
+member: uid=jane.smith,ou=Users,dc=example,dc=com
+member: uid=admin.user,ou=Users,dc=example,dc=com
+
+# ROLE_MANAGER Group
+dn: cn=ROLE_MANAGER,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+cn: ROLE_MANAGER
+member: uid=jane.smith,ou=Users,dc=example,dc=com
+member: uid=admin.user,ou=Users,dc=example,dc=com
+
+# ROLE_ADMIN Group
+dn: cn=ROLE_ADMIN,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+cn: ROLE_ADMIN
+member: uid=admin.user,ou=Users,dc=example,dc=com

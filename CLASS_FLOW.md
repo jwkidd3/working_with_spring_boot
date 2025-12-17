@@ -132,6 +132,7 @@
 | 5 | **Lab 8e: Declarative REST Clients with OpenFeign** - `labs/module-08e-openfeign/` |
 | 6 | **Lab 8f: Spring Cloud Kubernetes** - `labs/module-08f-kubernetes/` |
 | 7 | **Lab 8g: Batch Processing with Spring Batch** - `labs/module-08g-spring-batch/` |
+| 8 | **Lab 8h: Active Directory / LDAP Authentication** - `labs/module-08h-ldap-auth/` |
 
 ---
 
@@ -159,3 +160,4 @@
 | Lab 8e | Declarative REST Clients with OpenFeign | `labs/module-08e-openfeign/` |
 | Lab 8f | Spring Cloud Kubernetes | `labs/module-08f-kubernetes/` |
 | Lab 8g | Batch Processing with Spring Batch | `labs/module-08g-spring-batch/` |
+| Lab 8h | Active Directory / LDAP Authentication | `labs/module-08h-ldap-auth/` |
